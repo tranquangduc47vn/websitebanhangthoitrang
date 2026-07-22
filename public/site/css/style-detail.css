@@ -1,0 +1,441 @@
+/* ==========================================================================
+   1. RESET & BỐ CỤC CHUNG (DESKTOP ONLY)
+   ========================================================================== */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+aside, 
+.clearpaddingl, 
+div.col-sm-3:has(form), 
+div.col-md-3:has(form) {
+    display: none !important;
+}
+
+/* ==========================================================================
+   2. KHUNG CHỨA BỘ SƯU TẬP ẢNH & THUMBNAILS (TỰ ĐỘNG CUỘN KHI > 4 ẢNH)
+   ========================================================================== */
+.jm-gallery-container {
+    width: 100% !important;
+    max-width: 440px;
+    margin: 0;
+    display: flex !important; 
+    align-items: flex-start;
+    clear: both;
+}
+
+/* Khung chứa thumbnail bên trái */
+.jm-thumb-vertical-box {
+    width: 18% !important;
+    margin-right: 5% !important;
+    flex-shrink: 0;
+    height: 440px !important;    /* Khóa bằng chiều cao ảnh chính */
+    overflow-y: auto !important;  /* BẬT TẠI ĐÂY: Tự động xuất hiện thanh cuộn dọc khi có từ 5 ảnh trở lên */
+    overflow-x: hidden !important;
+    
+    /* Tùy chọn ẩn thanh cuộn nhìn cho đẹp mắt (nếu muốn hiện thanh cuộn mặc định thì xóa 3 dòng dưới) */
+    scrollbar-width: none;        /* Ẩn trên Firefox */
+}
+.jm-thumb-vertical-box::-webkit-scrollbar {
+    display: none;                /* Ẩn trên Chrome, Safari, Edge */
+}
+
+/* Khung cấu trúc danh sách bên trong */
+.jm-thumb-vertical-box ul,
+.jm-thumb-vertical {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important; /* Luôn xếp từ trên xuống */
+    gap: 12px !important;                   /* Khoảng cách cố định giữa các ảnh nhỏ là 12px */
+    height: auto !important;                /* Để chiều cao auto giúp nội dung kéo dài xuống để cuộn */
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+
+/* Định hình chuẩn kích thước cho từng ô ảnh nhỏ */
+.jm-thumb-vertical-box li {
+    display: block !important;
+    flex-shrink: 0 !important;              /* Ngăn chặn tuyệt đối việc ảnh bị bóp dẹt, co cụm */
+    width: 100% !important;
+    /* Chiều cao lý tưởng để hiển thị vừa khít 4 ảnh trên khung 440px (đã trừ gap) */
+    height: 101px !important;               
+}
+
+.jm-thumb-vertical-box li a,
+.jm-thumb-vertical-box li img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;           /* Giữ ảnh không dẹt, không méo hình */
+}
+
+.jm-main-image-box {
+    width: 77% !important;
+    position: relative !important;
+    flex-shrink: 0;
+}
+
+/* Khung ngoại vi bọc ngoài cùng */
+.jqzoom-wrapper {
+    position: relative !important;
+    width: 340px !important;    
+    height: 440px !important;   
+    overflow: hidden !important; 
+    display: block !important;
+}
+
+/* Khống chế ảnh hiển thị ban đầu - Ép lấp đầy form, giữ nguyên dáng đứng dài */
+.zoomPad > img {
+    width: 340px !important;
+    height: 440px !important;
+    min-width: 340px !important;
+    min-height: 440px !important;
+    object-fit: cover !important; 
+    display: block !important;
+}
+/* ==========================================================================
+   3. CẤU TRÚC HỆ THỐNG JQZOOM (INNER ZOOM TRONG ẢNH)
+   ========================================================================== */
+.zoomPad {
+    position: relative !important;
+    z-index: 99 !important;
+    cursor: crosshair !important;
+    display: block !important;
+    width: 340px !important;  
+    height: 440px !important;
+    overflow: hidden !important; 
+}
+
+/* Khóa chặt ô hiển thị kết quả zoom đè khít lên ảnh chính */
+.zoomWindow {
+    position: absolute !important;
+    left: 0px !important;      
+    top: 0px !important;        
+    z-index: 9999 !important; 
+    width: 340px !important;    /* Khớp chuẩn kích thước chiều ngang */
+    height: 440px !important;   /* Khớp chuẩn kích thước chiều dọc */
+    border: none !important;   
+    overflow: hidden !important;
+}
+
+/* Trả lại độ phân giải cao tự nhiên cho ảnh phóng to bên trong khi di chuột */
+.zoomWindow img {
+    position: absolute !important;
+    width: auto !important;     
+    height: auto !important;    
+    max-width: none;  
+    max-height: none; 
+    display: block !important;
+}
+
+/* Triệt tiêu các thành phần phụ gây lỗi hiển thị của jqzoom */
+.zoomPup, .zoomOverlay {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+/* ==========================================================================
+   4. THÔNG TIN SẢN PHẨM & CÁC THUỘC TÍNH (COLOR/SIZE)
+   ========================================================================== */
+.style2-product-title {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 24px !important;
+    color: #b81c22 !important; 
+    font-weight: bold !important;
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px;
+}
+
+.style2-sku {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.style2-product-desc {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7 !important;
+    margin-bottom: 20px;
+}
+
+.style2-product-desc p {
+    margin-bottom: 8px !important;
+}
+
+.style2-divider {
+    border-top: 1px dashed #ddd !important;
+    margin: 15px 0 !important;
+}
+
+.style2-meta-box {
+    margin-bottom: 25px;
+}
+
+.style2-meta-item {
+    font-size: 14px;
+    margin-bottom: 8px !important;
+    color: #333;
+}
+
+.style2-price-old del {
+    color: #777 !important;
+    font-size: 14px;
+}
+
+.style2-price-new span {
+    color: #00a651 !important; 
+    font-weight: bold !important;
+    font-size: 18px !important;
+}
+
+.style2-rating .stars {
+    color: #ffcc00;
+}
+
+.style2-attr-group {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 24px !important;
+    width: 100%;
+    clear: both !important;
+}
+
+.style2-attr-title {
+    width: 90px !important;
+    min-width: 90px !important;
+    font-weight: bold !important;
+    color: #333 !important;
+    font-size: 14px !important;
+    margin: 0 !important;
+}
+
+.style2-attr-list-rect {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 12px !important;
+}
+
+.style2-rect-box {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    border: 1px solid #ccc !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease;
+    text-indent: -9999px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.style2-rect-box.active {
+    border: 2px solid #000 !important;
+    transform: scale(1.15);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.style2-attr-list-square {
+    display: flex !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 8px !important;
+}
+
+.style2-square-box {
+    border: 1px solid #ccc !important;
+    width: 38px !important;
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    background: #fff !important;
+    color: #333 !important;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.style2-square-box.active {
+    border: 2px solid #ffcc00 !important;
+    background-color: #ffcc00 !important;
+    color: #000 !important;
+}
+
+/* ==========================================================================
+   5. SỐ LƯỢNG & NÚT THÊM GIỎ HÀNG
+   ========================================================================== */
+.style2-qty-wrapper {
+    display: flex !important;
+    border: 1px solid #ccc !important;
+    width: 100px !important;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.style2-qty-btn {
+    width: 30px !important;
+    height: 30px !important;
+    background: #f5f5f5 !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    color: #333;
+}
+
+.style2-qty-input {
+    width: 40px !important;
+    height: 30px !important;
+    border: none !important;
+    border-left: 1px solid #ccc !important;
+    border-right: 1px solid #ccc !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    color: #000;
+}
+
+.style2-action-buttons {
+    margin-top: 20px !important;
+    clear: both !important;
+}
+
+.style2-btn-addcart {
+    height: 46px !important;
+    width: 100% !important;
+    max-width: 280px !important; 
+    font-weight: bold !important;
+    font-size: 14px !important;
+    text-transform: uppercase !important;
+    background: #000 !important;
+    color: #fff !important;
+    border: none !important;
+    letter-spacing: 0.5px !important;
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+
+.style2-btn-addcart:hover {
+    background: #222 !important;
+}
+
+/* ==========================================================================
+   6. DỊCH VỤ CAM KẾT & PANEL ĐÁNH GIÁ SẢN PHẨM
+   ========================================================================== */
+.style2-services-container {
+    margin-top: 40px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #eee !important;
+    clear: both;
+}
+
+.style2-service-icon {
+    height: 20px;
+    filter: grayscale(100%);
+}
+
+.style2-service-text {
+    color: #666 !important;
+    font-size: 12px !important;
+    margin-top: 6px !important;
+}
+
+.jm-review-panel {
+    border: none !important;
+    box-shadow: none !important;
+    background: #fbfbfb !important;
+    padding: 10px !important;
+}
+
+.jm-review-count-title {
+    font-size: 15px;
+    color: #111;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.jm-review-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #eee;
+}
+
+.jm-review-score-box {
+    text-align: center;
+    padding-right: 40px;
+    border-right: 1px solid #eee;
+    min-width: 160px;
+}
+
+.jm-big-score {
+    font-size: 48px;
+    font-weight: bold;
+    color: #111;
+}
+
+.jm-max-score {
+    font-size: 18px;
+    color: #999;
+}
+
+.jm-review-progress-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jm-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.jm-star-label {
+    font-size: 13px;
+    color: #333;
+    width: 45px;
+}
+
+.jm-progress-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    overflow: hidden;
+    max-width: 350px;
+}
+
+.jm-progress-bar-fill {
+    height: 100%;
+    background: #111;
+    border-radius: 3px;
+}
+
+.jm-star-count {
+    font-size: 13px;
+    color: #999;
+    width: 30px;
+}
+
+/* ==========================================================================
+   7. SẢN PHẨM LIÊN QUAN (SLIDER TRƯỢT TỰ ĐỘNG)
+   ========================================================================== */
+.product-slider { width:100%; overflow:hidden; }
+.product-track { display:flex; width:max-content; animation:scrollProduct 60s linear infinite; }
+.product-track:hover { animation-play-state: paused; }
+.item-box { width:260px; min-width:260px; margin-right:15px; }
+@keyframes scrollProduct { from { transform:translateX(0); } to { transform:translateX(-50%); } }

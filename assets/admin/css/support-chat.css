@@ -1,0 +1,63 @@
+.support-admin-chat__messages {
+	overflow-y: auto;
+	max-height: 420px;
+	background: #f8f9fa;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.support-admin-msg {
+	max-width: 85%;
+}
+
+.support-admin-msg--customer {
+	align-self: flex-start;
+}
+
+.support-admin-msg--ai,
+.support-admin-msg--staff {
+	align-self: flex-end;
+}
+
+.support-admin-msg__bubble {
+	padding: 8px 12px;
+	border-radius: 10px;
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+.support-admin-msg--customer .support-admin-msg__bubble {
+	background: #fff;
+	border: 1px solid #dee2e6;
+}
+
+.support-admin-msg--ai .support-admin-msg__bubble {
+	background: #eef2ff;
+	border: 1px solid #c7d2fe;
+}
+
+.support-admin-msg--staff .support-admin-msg__bubble {
+	background: #d1fae5;
+	border: 1px solid #6ee7b7;
+}
+
+.support-admin-msg__meta {
+	margin-top: 2px;
+}
+
+.admin-nav-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	margin-left: 6px;
+	border-radius: 999px;
+	background: #dc3545;
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 1;
+}

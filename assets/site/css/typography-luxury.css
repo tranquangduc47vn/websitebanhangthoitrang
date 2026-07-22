@@ -1,0 +1,83 @@
+/**
+ * Storefront typography — luxury system (DM Sans + Cormorant Garamond).
+ * Loaded globally via layouts/head.php; page CSS should use var(--wf-font) / var(--wf-display).
+ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+:root {
+	--wf-font: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+	--wf-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+	--wf-text: #141414;
+	--wf-muted: #5a5a5a;
+	--wf-accent: #9a7b2f;
+}
+
+html,
+body {
+	font-family: var(--wf-font);
+	color: var(--wf-text);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Bootstrap 3 + legacy storefront blocks */
+body .container,
+body .panel,
+body .panel-body,
+body .form-control,
+body .btn,
+body .dropdown-menu,
+body .list-group-item,
+body .breadcrumb,
+body .pagination,
+body .modal-content,
+body .modal-body,
+body .alert,
+body .table,
+body .nav,
+body .navbar,
+body input,
+body select,
+body textarea,
+body button {
+	font-family: var(--wf-font);
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6,
+body .h1,
+body .h2,
+body .h3,
+body .h4,
+body .h5,
+body .h6 {
+	font-family: var(--wf-display);
+	font-weight: 500;
+}
+
+/* Content / policy pages */
+.jm-content-page {
+	font-family: var(--wf-font);
+	color: var(--wf-text);
+}
+
+.jm-content-page h1,
+.jm-content-page h2,
+.jm-content-page h3,
+.jm-content-page h4 {
+	font-family: var(--wf-display);
+	font-weight: 500;
+}
+
+/* About / news / store pages */
+.gt-wrapper-fix h1,
+.gt-wrapper-fix h2,
+.gt-wrapper-fix h3,
+.gt-wrapper-fix h4 {
+	font-family: var(--wf-display);
+	font-weight: 500;
+}

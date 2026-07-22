@@ -1,0 +1,122 @@
+================================================================================
+  HƯỚNG DẪN CHẠY DỰ ÁN WEBSHOP (CodeIgniter 3) — XAMPP & ServBay
+================================================================================
+
+Phiên bản đang dùng trên máy dev (tham khảo, cập nhật 2026-07-21):
+  • PHP:  7.4.33 (khuyến nghị PHP 7.4 hoặc 8.0+ cho CodeIgniter 3)
+  • MySQL / MariaDB: theo bản cài kèm XAMPP hoặc ServBay (driver mysqli)
+  • Java: 1.8.0_202 (Java 8) — không bắt buộc để chạy webshop; project chỉ cần PHP + MySQL
+  • Web server: Apache (bật mod_rewrite) hoặc PHP built-in server (test nhanh)
+
+--------------------------------------------------------------------------------
+1. CHUẨN BỊ DATABASE
+--------------------------------------------------------------------------------
+  • File SQL: databaseaddphpmyadmin/webshop.sql
+  • Tạo database tên: webshop (utf8 / utf8_general_ci)
+  • Import file .sql bằng phpMyAdmin hoặc dòng lệnh, ví dụ:
+      mysql -u root -p webshop < databaseaddphpmyadmin/webshop.sql
+
+--------------------------------------------------------------------------------
+2. CẤU HÌNH TRONG PROJECT
+--------------------------------------------------------------------------------
+  Thư mục: application/config/
+
+  A) database.php — kết nối MySQL:
+      hostname: localhost
+      database: webshop
+      dbdriver: mysqli
+
+      XAMPP (mặc định):
+        username: root
+        password: (để trống)
+
+      ServBay (ví dụ trên máy dev hiện tại):
+        username: root
+        password: ServBay.dev
+        (Đổi password nếu bạn đã đổi trong ServBay)
+
+  B) config.php:
+      base_url tự động theo HTTP_HOST (không cần sửa nếu truy cập đúng domain/path)
+      index_page: '' (cần .htaccess / rewrite)
+
+  C) Quyền ghi (nếu lỗi session/log):
+      storage/logs/
+      storage/cache/
+      storage/sessions/
+      upload/
+
+--------------------------------------------------------------------------------
+3. CHẠY BẰNG XAMPP (cơ bản nhất)
+--------------------------------------------------------------------------------
+  1. Cài XAMPP (Windows): https://www.apachefriends.org/
+  2. Mở XAMPP Control Panel → Start Apache + MySQL
+  3. Copy cả thư mục project vào:
+       C:\xampp\htdocs\webshop
+     (hoặc VirtualHost trỏ tới thư mục chứa index.php, ví dụ d:\webshop)
+  4. Bật mod_rewrite Apache (XAMPP thường đã bật)
+  5. Import database (mục 1)
+  6. Sửa application/config/database.php → user root, password trống
+  7. Mở trình duyệt:
+       http://localhost/webshop/
+       Admin: http://localhost/webshop/admin/login
+
+  Lỗi 404 / link sai: kiểm tra file .htaccess ở thư mục gốc project và
+  AllowOverride All trong httpd.conf.
+
+--------------------------------------------------------------------------------
+4. CHẠY BẰNG SERVBAY (cơ bản nhất)
+--------------------------------------------------------------------------------
+  1. Cài ServBay: https://www.servbay.com/
+  2. Trong ServBay:
+       • Bật dịch vụ: Apache/Nginx + MySQL, chọn PHP 7.4 trở lên
+       • Document root trỏ tới thư mục gốc project (có file index.php)
+       • Gán hostname local (ví dụ: webshop.test)
+  3. Import database (mục 1)
+  4. Sửa application/config/database.php cho đúng user/password MySQL ServBay
+  5. Truy cập:
+       http://webshop.test/
+       Admin: http://webshop.test/admin/login
+
+  Sau khi đổi phiên bản PHP trong ServBay: restart dịch vụ web.
+
+--------------------------------------------------------------------------------
+5. CHẠY NHANH BẰNG PHP TÍCH HỢP (không bắt buộc XAMPP — chỉ test dev)
+--------------------------------------------------------------------------------
+  Mở terminal tại thư mục project:
+    php -S 127.0.0.1:8765 router.php
+  Truy cập: http://127.0.0.1:8765/
+  (Vẫn cần MySQL đang chạy để có dữ liệu)
+
+--------------------------------------------------------------------------------
+6. ĐĂNG NHẬP ADMIN
+--------------------------------------------------------------------------------
+  URL:  /admin/login
+        (ví dụ: http://webshop.test/admin/login)
+
+  Tài khoản demo (sau import SQL — đổi nếu bạn đã đổi mật khẩu trong DB):
+    Email:    admin@gmail.com
+    Mật khẩu: 123456
+
+  Sau đăng nhập: /admin (dashboard)
+
+--------------------------------------------------------------------------------
+7. STOREFRONT (tham khảo nhanh)
+--------------------------------------------------------------------------------
+  Trang chủ:        /
+  Giỏ hàng:         /gio-hang  (cần đăng nhập user)
+  Thanh toán:       /thanh-toan
+  Hệ thống cửa hàng: /hethongcuahang
+
+  Chi tiết URL SEO: docs/URL-MIGRATION.md
+  Phân quyền ADMIN/MOD: docs/ROLES.md
+  Tiếp tục dev UI:  docs/SESSION-HANDOFF.md
+
+--------------------------------------------------------------------------------
+8. LỖI THƯỜNG GẶP
+--------------------------------------------------------------------------------
+  • Trang trắng / 500: sai database.php hoặc chưa import SQL
+  • Ảnh không lên: kiểm tra thư mục upload/ và quyền đọc
+  • Admin không vào: kiểm tra bảng admin trong DB
+  • PHP quá cũ (< 7.2): nâng cấp PHP trong XAMPP/ServBay
+
+================================================================================

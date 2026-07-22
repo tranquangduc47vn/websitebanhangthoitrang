@@ -1,0 +1,813 @@
+/* ==========================================================================
+   1. RESET & BỐ CỤC CHUNG (DESKTOP ONLY)
+   ========================================================================== */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+aside, 
+.clearpaddingl, 
+div.col-sm-3:has(form), 
+div.col-md-3:has(form) {
+    display: none !important;
+}
+
+/* ==========================================================================
+   2. KHUNG CHỨA BỘ SƯU TẬP ẢNH & THUMBNAILS (TỰ ĐỘNG CUỘN KHI > 4 ẢNH)
+   ========================================================================== */
+.jm-gallery-container {
+    width: 100% !important;
+    max-width: 440px;
+    margin: 0;
+    display: flex !important; 
+    align-items: flex-start;
+    clear: both;
+}
+
+/* Khung chứa thumbnail bên trái */
+.jm-thumb-vertical-box {
+    width: 18% !important;
+    margin-right: 5% !important;
+    flex-shrink: 0;
+    height: 440px !important;    /* Khóa bằng chiều cao ảnh chính */
+    overflow-y: auto !important;  /* BẬT TẠI ĐÂY: Tự động xuất hiện thanh cuộn dọc khi có từ 5 ảnh trở lên */
+    overflow-x: hidden !important;
+    
+    /* Tùy chọn ẩn thanh cuộn nhìn cho đẹp mắt (nếu muốn hiện thanh cuộn mặc định thì xóa 3 dòng dưới) */
+    scrollbar-width: none;        /* Ẩn trên Firefox */
+}
+.jm-thumb-vertical-box::-webkit-scrollbar {
+    display: none;                /* Ẩn trên Chrome, Safari, Edge */
+}
+
+/* Khung cấu trúc danh sách bên trong */
+.jm-thumb-vertical-box ul,
+.jm-thumb-vertical {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important; /* Luôn xếp từ trên xuống */
+    gap: 12px !important;                   /* Khoảng cách cố định giữa các ảnh nhỏ là 12px */
+    height: auto !important;                /* Để chiều cao auto giúp nội dung kéo dài xuống để cuộn */
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+
+/* Định hình chuẩn kích thước cho từng ô ảnh nhỏ */
+.jm-thumb-vertical-box li {
+    display: block !important;
+    flex-shrink: 0 !important;              /* Ngăn chặn tuyệt đối việc ảnh bị bóp dẹt, co cụm */
+    width: 100% !important;
+    /* Chiều cao lý tưởng để hiển thị vừa khít 4 ảnh trên khung 440px (đã trừ gap) */
+    height: 101px !important;               
+}
+
+.jm-thumb-vertical-box li a,
+.jm-thumb-vertical-box li img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;           /* Giữ ảnh không dẹt, không méo hình */
+}
+
+.jm-thumb-vertical-box li a.zoomThumbActive {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+}
+
+.jm-thumb-vertical-box li a {
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.jm-main-image-box {
+    width: 77% !important;
+    position: relative !important;
+    flex-shrink: 0;
+}
+
+/* Ảnh chính + zoom CSS mượt (GPU), không dùng jqzoom */
+.jm-pdp-main-stage {
+    position: relative;
+    width: 340px !important;
+    height: 440px !important;
+    overflow: hidden !important;
+    background: #f7f7f7;
+    cursor: zoom-in;
+}
+
+.jm-pdp-main-stage.is-zoom-active {
+    cursor: crosshair;
+}
+
+.jm-pdp-main-img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transition: transform 0.15s ease-out;
+    user-select: none;
+    pointer-events: none;
+}
+
+.jm-pdp-main-stage.is-zoom-active .jm-pdp-main-img {
+    transition: none;
+}
+
+.jm-pdp-lux .jm-thumb-vertical-box {
+    isolation: isolate;
+    contain: layout paint;
+}
+
+/* Legacy jqzoom rules — không còn dùng trên PDP */
+.jm-pdp-lux .zoomPad,
+.jm-pdp-lux .zoomWindow,
+.jm-pdp-lux .zoomPup {
+    display: none !important;
+}
+
+/* Khung ngoại vi bọc ngoài cùng (legacy alias) */
+.jqzoom-wrapper {
+    position: relative !important;
+    width: 340px !important;    
+    height: 440px !important;   
+    overflow: hidden !important; 
+    display: block !important;
+}
+
+/* jqzoom legacy (trang khác) — PDP dùng .jm-pdp-main-stage */
+.jm-pdp-lux .zoomPad > img {
+    display: none !important;
+}
+
+.zoomPad > img {
+    width: 340px !important;
+    height: 440px !important;
+    min-width: 340px !important;
+    min-height: 440px !important;
+    object-fit: cover !important; 
+    display: block !important;
+}
+/* ==========================================================================
+   3. CẤU TRÚC HỆ THỐNG JQZOOM (INNER ZOOM TRONG ẢNH)
+   ========================================================================== */
+.zoomPad {
+    position: relative !important;
+    z-index: 99 !important;
+    cursor: crosshair !important;
+    display: block !important;
+    width: 340px !important;  
+    height: 440px !important;
+    overflow: hidden !important; 
+}
+
+/* Khóa chặt ô hiển thị kết quả zoom đè khít lên ảnh chính */
+.zoomWindow {
+    position: absolute !important;
+    left: 0px !important;      
+    top: 0px !important;        
+    z-index: 9999 !important; 
+    width: 340px !important;    /* Khớp chuẩn kích thước chiều ngang */
+    height: 440px !important;   /* Khớp chuẩn kích thước chiều dọc */
+    border: none !important;   
+    overflow: hidden !important;
+}
+
+/* Trả lại độ phân giải cao tự nhiên cho ảnh phóng to bên trong khi di chuột */
+.zoomWindow img {
+    position: absolute !important;
+    width: auto !important;     
+    height: auto !important;    
+    max-width: none;  
+    max-height: none; 
+    display: block !important;
+}
+
+/* Triệt tiêu các thành phần phụ gây lỗi hiển thị của jqzoom */
+.zoomPup, .zoomOverlay {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+/* ==========================================================================
+   4. THÔNG TIN SẢN PHẨM & CÁC THUỘC TÍNH (COLOR/SIZE)
+   ========================================================================== */
+.style2-product-title {
+    font-family: var(--wf-display) !important;
+    font-size: clamp(1.625rem, 2.5vw, 2rem) !important;
+    color: #1a1a1a !important;
+    font-weight: 500 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+    text-transform: none !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1.25 !important;
+}
+
+.style2-sku {
+    font-size: 12px;
+    color: #8a8a8a;
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+}
+
+.style2-sku strong {
+    font-weight: 500;
+    color: #555;
+}
+
+.style2-price-block {
+    margin-bottom: 1.25rem;
+}
+
+.style2-price-old-line {
+    margin: 0 0 0.25rem !important;
+    font-size: 14px;
+}
+
+.style2-price-old-line del {
+    color: #999 !important;
+    font-weight: 400;
+}
+
+.style2-price-current {
+    margin: 0 !important;
+    font-size: clamp(1.375rem, 2vw, 1.75rem) !important;
+    font-weight: 500 !important;
+    color: #111 !important;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+}
+
+.style2-product-desc {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.75 !important;
+    margin-bottom: 1.25rem;
+}
+
+.style2-product-desc p {
+    margin-bottom: 8px !important;
+}
+
+.style2-divider {
+    border: none !important;
+    border-top: 1px solid #eee !important;
+    margin: 1.25rem 0 !important;
+}
+
+.style2-meta-box {
+    margin-bottom: 1.5rem;
+}
+
+.style2-meta-item {
+    font-size: 13px;
+    margin-bottom: 6px !important;
+    color: #555;
+}
+
+.style2-meta-item strong {
+    font-weight: 500;
+    color: #333;
+}
+
+.style2-price-old del {
+    color: #999 !important;
+    font-size: 14px;
+}
+
+.style2-price-new span {
+    color: #111 !important;
+    font-weight: 500 !important;
+    font-size: 1.25rem !important;
+}
+
+.style2-rating .stars {
+    color: #c9a227;
+}
+
+.style2-attr-group {
+    display: flex !important;
+    align-items: flex-start !important;
+    margin-bottom: 1.35rem !important;
+    width: 100%;
+    clear: both !important;
+}
+
+.style2-attr-title {
+    width: 90px !important;
+    min-width: 90px !important;
+    font-weight: 500 !important;
+    color: #333 !important;
+    font-size: 13px !important;
+    margin: 0 !important;
+    padding-top: 8px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.style2-attr-list-rect {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 10px !important;
+    align-items: center;
+}
+
+.style2-rect-box {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    border: 2px solid #fff !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
+    text-indent: -9999px;
+    overflow: hidden;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+}
+
+.style2-rect-box:hover {
+    transform: scale(1.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.style2-rect-box.active {
+    outline: 2px solid #111 !important;
+    outline-offset: 2px;
+    transform: scale(1.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18), 0 0 0 2px #fff;
+}
+
+.style2-attr-list-square {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 8px !important;
+}
+
+.style2-square-box {
+    border: 1px solid #ddd !important;
+    min-width: 44px !important;
+    height: 40px !important;
+    padding: 0 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    background: #fff !important;
+    color: #333 !important;
+    border-radius: 999px !important;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.style2-square-box:hover {
+    border-color: #999 !important;
+}
+
+.style2-square-box.active {
+    border: 1px solid #111 !important;
+    background-color: #111 !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================================
+   5. SỐ LƯỢNG & NÚT THÊM GIỎ HÀNG
+   ========================================================================== */
+.style2-qty-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+    border: 1px solid #ddd !important;
+    width: auto !important;
+    min-width: 112px !important;
+    border-radius: 999px !important;
+    overflow: hidden;
+    background: #fff;
+}
+
+.style2-qty-btn {
+    width: 36px !important;
+    height: 36px !important;
+    background: #fafafa !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    color: #333;
+    transition: background 0.15s ease;
+}
+
+.style2-qty-btn:hover {
+    background: #f0f0f0 !important;
+}
+
+.style2-qty-input {
+    width: 40px !important;
+    height: 36px !important;
+    border: none !important;
+    border-left: 1px solid #eee !important;
+    border-right: 1px solid #eee !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #111;
+    background: #fff !important;
+}
+
+.style2-action-buttons {
+    margin-top: 1.5rem !important;
+    clear: both !important;
+}
+
+.style2-btn-addcart {
+    height: 48px !important;
+    width: 100% !important;
+    max-width: 320px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    background: #111 !important;
+    color: #fff !important;
+    border: none !important;
+    letter-spacing: 0.12em !important;
+    border-radius: 8px !important;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.style2-btn-addcart:hover:not(:disabled) {
+    background: #000 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+
+.style2-btn-addcart:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   6. DỊCH VỤ CAM KẾT & PANEL ĐÁNH GIÁ SẢN PHẨM
+   ========================================================================== */
+.style2-services-container {
+    margin-top: 40px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #eee !important;
+    clear: both;
+}
+
+.style2-service-icon {
+    height: 20px;
+    filter: grayscale(100%);
+}
+
+.style2-service-text {
+    color: #666 !important;
+    font-size: 12px !important;
+    margin-top: 6px !important;
+}
+
+.jm-review-panel {
+    border: none !important;
+    box-shadow: none !important;
+    background: #fbfbfb !important;
+    padding: 10px !important;
+}
+
+.jm-review-count-title {
+    font-size: 15px;
+    color: #111;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.jm-review-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #eee;
+}
+
+.jm-review-score-box {
+    text-align: center;
+    padding-right: 40px;
+    border-right: 1px solid #eee;
+    min-width: 160px;
+}
+
+.jm-big-score {
+    font-size: 48px;
+    font-weight: bold;
+    color: #111;
+}
+
+.jm-max-score {
+    font-size: 18px;
+    color: #999;
+}
+
+.jm-review-progress-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jm-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.jm-star-label {
+    font-size: 13px;
+    color: #333;
+    width: 45px;
+}
+
+.jm-progress-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    overflow: hidden;
+    max-width: 350px;
+}
+
+.jm-progress-bar-fill {
+    height: 100%;
+    background: #111;
+    border-radius: 3px;
+}
+
+.jm-star-count {
+    font-size: 13px;
+    color: #999;
+    width: 30px;
+}
+
+/* ==========================================================================
+   7. SẢN PHẨM LIÊN QUAN (SLIDER TRƯỢT TỰ ĐỘNG)
+   ========================================================================== */
+.jm-pdp-lux .jm-pdp-related {
+    margin-top: 2.5rem;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.jm-pdp-lux .jm-pdp-related__head {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #eee !important;
+    padding: 0 0 1rem !important;
+    margin-bottom: 1.25rem;
+}
+
+.jm-pdp-lux .jm-pdp-related__title {
+    font-family: var(--wf-display) !important;
+    font-size: 1.125rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #111 !important;
+    margin: 0 !important;
+}
+
+.jm-pdp-lux .jm-pdp-related__body {
+    padding: 0 !important;
+    border: none !important;
+}
+
+.jm-pdp-lux .jm-pdp-related-slider {
+    width: 100%;
+    overflow: hidden;
+    padding: 4px 0 12px;
+}
+
+.jm-pdp-lux .jm-pdp-related-slider .product-track {
+    display: flex;
+    width: max-content;
+    gap: 18px;
+    animation: scrollProduct 55s linear infinite;
+}
+
+.jm-pdp-lux .jm-pdp-related-slider .product-track:hover {
+    animation-play-state: paused;
+}
+
+.jm-pdp-lux .jm-pdp-related-item {
+    width: 240px;
+    min-width: 240px;
+    margin-right: 0;
+}
+
+.jm-pdp-lux .jm-pdp-related-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    padding: 0 !important;
+    border: 1px solid #e8e8e8 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.jm-pdp-lux .jm-pdp-related-card:hover {
+    border-color: #d5d5d5 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+.jm-pdp-lux .jm-pdp-related-card__media {
+    width: 100% !important;
+    height: 300px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border-radius: 12px 12px 0 0;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.45s ease;
+}
+
+.jm-pdp-lux .jm-pdp-related-card:hover .jm-pdp-related-card__media img {
+    transform: scale(1.03);
+}
+
+.jm-pdp-lux .jm-pdp-related-card__body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 8px;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__name {
+    font-family: var(--wf-display) !important;
+    font-size: 1.5rem !important;
+    font-weight: 500 !important;
+    line-height: 1.38 !important;
+    height: auto !important;
+    min-height: 3em;
+    margin: 0 !important;
+    letter-spacing: 0.02em;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__name a {
+    color: #1a1a1a !important;
+    text-decoration: none !important;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__name a:hover {
+    color: #555 !important;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__price {
+    margin: 0 !important;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__price .price {
+    font-size: 1.375rem !important;
+    font-weight: 500 !important;
+    color: #111 !important;
+    letter-spacing: 0.02em;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__price .product-discount {
+    font-size: 1.0625rem !important;
+    color: #999 !important;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__meta {
+    margin: 0 !important;
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__meta span:nth-child(2) {
+    opacity: 0.5;
+    padding: 0 4px;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__cta {
+    display: block;
+    margin-top: auto;
+    padding: 10px 12px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    color: #fff !important;
+    background: #111;
+    border-radius: 8px;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.jm-pdp-lux .jm-pdp-related-card__cta:hover {
+    background: #000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #fff !important;
+}
+
+.product-slider { width:100%; overflow:hidden; }
+.product-track { display:flex; width:max-content; animation:scrollProduct 60s linear infinite; }
+.product-track:hover { animation-play-state: paused; }
+.item-box { width:260px; min-width:260px; margin-right:15px; }
+@keyframes scrollProduct { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+/* ==========================================================================
+   8. PREMIUM PDP — BREADCRUMB, STICKY, PAGE SCOPE
+   ========================================================================== */
+.jm-pdp-lux {
+    background: #fff;
+}
+
+.jm-pdp-lux .jm-pdp-breadcrumb {
+    background: transparent !important;
+    padding: 0.75rem 0 1.25rem !important;
+    margin: 0 0 0.5rem !important;
+    border-radius: 0 !important;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+}
+
+.jm-pdp-lux .jm-pdp-breadcrumb > li + li:before {
+    content: "/";
+    padding: 0 0.5rem;
+    color: #bbb;
+}
+
+.jm-pdp-lux .jm-pdp-breadcrumb a {
+    color: #888 !important;
+    text-decoration: none;
+}
+
+.jm-pdp-lux .jm-pdp-breadcrumb a:hover {
+    color: #111 !important;
+}
+
+.jm-pdp-lux .jm-pdp-breadcrumb .active {
+    color: #333 !important;
+    font-weight: 400;
+}
+
+.jm-pdp-lux .jm-pdp-panel-body {
+    overflow: visible !important;
+}
+
+@media (min-width: 992px) {
+    .jm-pdp-lux .jm-pdp-info-col {
+        padding-left: 2rem !important;
+    }
+
+    .jm-pdp-lux .jm-pdp-info-sticky {
+        position: sticky;
+        top: 100px;
+        z-index: 2;
+        padding-bottom: 1rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .jm-pdp-lux .jm-pdp-info-sticky {
+        position: static;
+    }
+
+    .jm-pdp-lux .jm-pdp-gallery-col {
+        margin-bottom: 1.5rem;
+    }
+}

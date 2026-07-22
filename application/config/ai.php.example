@@ -1,0 +1,52 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+/**
+ * Sao chép file này thành ai.php rồi điền API key:
+ *   copy application\config\ai.php.example application\config\ai.php
+ *
+ * Cờ bật/tắt AI / nhân viên nội bộ nằm ở bảng `ai_setting`.
+ */
+
+$config['ai_provider'] = 'gemini';
+
+$config['ai_gemini_api_key'] = ''; // dán Gemini API key tại đây
+$config['ai_gemini_model'] = 'gemini-2.0-flash';
+$config['ai_gemini_endpoint'] = 'https://generativelanguage.googleapis.com/v1beta/models';
+$config['ai_gemini_timeout'] = 10;
+$config['ai_gemini_max_tokens'] = 1024;
+$config['ai_gemini_temperature'] = 0.4;
+
+$config['ai_openai_api_key'] = '';
+$config['ai_openai_model'] = 'gpt-4o-mini';
+$config['ai_openai_endpoint'] = 'https://api.openai.com/v1/chat/completions';
+$config['ai_openai_timeout'] = 15;
+$config['ai_openai_max_tokens'] = 500;
+$config['ai_openai_temperature'] = 0.4;
+
+$config['ai_quick_replies'] = array(
+	'Tìm sản phẩm',
+	'Tư vấn size',
+	'Tra cứu đơn hàng',
+	'Khuyến mãi',
+	'Gặp nhân viên',
+);
+
+$config['ai_welcome_intro'] = "Mình có thể hỗ trợ:\n"
+	. "• Tìm sản phẩm\n"
+	. "• Tư vấn size\n"
+	. "• Gợi ý theo ngân sách\n"
+	. "• Kiểm tra đơn hàng\n"
+	. "• Chính sách đổi trả\n"
+	. "• Voucher\n\n"
+	. "Nếu cần mình sẽ kết nối bạn với nhân viên.";
+
+$config['ai_rate_limit_max_messages'] = 8;
+$config['ai_rate_limit_window_seconds'] = 30;
+$config['ai_history_context_size'] = 6;
+$config['ai_faq_match_threshold'] = 0.45;
+
+$config['ai_knowledge_bestseller_limit'] = 8;
+$config['ai_knowledge_faq_limit'] = 30;
+
+$config['support_poll_interval_ms'] = 1500;

@@ -1,0 +1,61 @@
+.DS_Store
+Thumbs.db
+*.log
+
+# Secrets — KHÔNG commit mật khẩu DB / API key
+application/config/database.php
+application/config/ai.php
+.env
+.env.*
+
+# CodeIgniter cache / logs
+application/cache/*
+!application/cache/index.html
+!application/cache/.htaccess
+application/cache/sessions/*
+
+application/logs/*
+!application/logs/index.html
+!application/logs/.htaccess
+
+# Runtime
+storage/logs/*
+storage/cache/*
+storage/temp/*
+storage/sessions/*
+!storage/.gitkeep
+!storage/logs/index.html
+!storage/cache/index.html
+!storage/temp/index.html
+!storage/sessions/index.html
+/sessions/
+/temp/
+*.tmp
+*.temp
+
+# Uploads (ảnh sản phẩm local — lớn, không cần trên GitHub)
+/upload/*
+!/upload/.gitkeep
+/uploads/*
+!/uploads/.gitkeep
+
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
+/vendor/
+
+# IDE / editor
+/nbproject/
+.idea/*
+.vscode/*
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# OS / Cursor
+.cursor/
+*.swp
+*~
