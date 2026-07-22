@@ -33,9 +33,8 @@ storage/sessions/*
 *.tmp
 *.temp
 
-# Uploads (ảnh sản phẩm local — lớn, không cần trên GitHub)
-/upload/*
-!/upload/.gitkeep
+# Giữ ảnh sản phẩm trong git (upload/)
+# uploads/ cũ (nếu có) vẫn ignore
 /uploads/*
 !/uploads/.gitkeep
 
