@@ -4,7 +4,7 @@ $admin_form_breadcrumb = 'Sản phẩm';
 $admin_form_back_url = admin_url('product');
 $this->load->view('admin/partials/form_open');
 ?>
-				<form class="form-horizontal admin-form" action="<?php echo admin_url('product/edit/'.$product->id); ?>" method="post" enctype="multipart/form-data">
+				<form class="form-horizontal admin-form" action="<?php echo admin_url('product/edit/'.$product->id); ?>" method="post" enctype="multipart/form-data" data-product-price-form>
 					
 					<div class="form-group">
 						<label for="name" class="col-sm-2 control-label">Tên sản phẩm</label>
@@ -17,38 +17,55 @@ $this->load->view('admin/partials/form_open');
 					</div>
 
 					<div class="form-group">
-						<label for="image" class="col-sm-2 control-label">Hình ảnh chính</label>
+						<label class="col-sm-2 control-label">Hình ảnh sản phẩm</label>
 						<div class="col-sm-10">
-							<?php if(!empty($product->image_link)): ?>
-								<img src="<?php echo base_url('upload/product/'.$product->image_link); ?>" alt="" style="width: 50px; height: 50px; object-fit: cover; float: left; margin-right: 15px; border: 1px solid #ddd; padding: 2px;">
-							<?php endif; ?>
-							<div style="float: left; width: 250px;">
-								<input type="file" id="image" name="image" accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,.jpg,.jpeg,.png,.webp,.gif,.bmp">
-								<p class="help-block" style="font-size:11px;color:#777;margin-top:6px;">JPG, PNG, GIF, WEBP — tối đa 5MB. Để trống nếu giữ ảnh cũ.</p>
-								<p class="help-block" style="font-size: 11px;">* Chỉ chọn nếu muốn thay đổi ảnh đại diện mới.</p>
-							</div>
-						</div>
-					</div>
+							<?php
+							$image_list = json_decode($product->image_list);
+							if (!is_array($image_list)) {
+								$image_list = array();
+							}
+							$image_list = array_values(array_filter($image_list));
+							$posted_main = $this->input->post('product_image_main');
+							$posted_list = $this->input->post('product_image_list');
+							$hidden_main = ($posted_main !== null && $posted_main !== false)
+								? (string) $posted_main
+								: (string) $product->image_link;
+							$hidden_list = ($posted_list !== null && $posted_list !== false)
+								? (string) $posted_list
+								: json_encode($image_list);
+							?>
+							<link rel="stylesheet" href="<?php echo base_url('assets/admin/css/product-images.css?v=2'); ?>">
+							<div class="adm-product-images" id="admProductImages" data-adm-product-images
+								data-upload-base="<?php echo base_url('upload/product/'); ?>">
+								<input type="hidden" name="product_image_main" id="product_image_main"
+									value="<?php echo htmlspecialchars($hidden_main, ENT_QUOTES, 'UTF-8'); ?>">
+								<input type="hidden" name="product_image_list" id="product_image_list"
+									value="<?php echo htmlspecialchars($hidden_list, ENT_QUOTES, 'UTF-8'); ?>">
+								<div id="product_images_remove_container"></div>
 
-					<div class="form-group">
-						<label for="list_image" class="col-sm-2 control-label">Hình ảnh kèm theo</label>
-						<div class="col-sm-10">
-							<div style="margin-bottom: 10px; overflow: hidden;">
-								<?php
-								$image_list = json_decode($product->image_list);
-								if (is_array($image_list)) {
-									foreach ($image_list as $img_val) {
-										?>
-										<img src="<?php echo base_url('upload/product/'.$img_val); ?>" alt="" style="width: 50px; height: 50px; object-fit: cover; float: left; margin-right: 10px; border: 1px solid #ddd; padding: 2px;">
-										<?php
-									}
-								}
-								?>
+								<div class="adm-img-zone adm-img-zone--main">
+									<div class="adm-img-zone__label">Hình ảnh chính</div>
+									<p class="adm-img-zone__hint">Kéo thả để đặt ảnh đại diện</p>
+									<div class="adm-img-zone__drop" data-zone="main" id="zone-main"></div>
+									<div class="adm-img-zone__upload">
+										<input type="file" id="image" name="image" class="form-control form-control-sm"
+											accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,.jpg,.jpeg,.png,.webp,.gif,.bmp">
+										<p class="help-block" style="font-size:11px;color:#777;margin-top:6px;">Upload ảnh mới thay thế ảnh chính (JPG, PNG, WEBP — tối đa 5MB)</p>
+									</div>
+								</div>
+
+								<div class="adm-img-zone adm-img-zone--gallery">
+									<div class="adm-img-zone__label">Hình ảnh kèm theo</div>
+									<p class="adm-img-zone__hint">Kéo thả sắp xếp · kéo sang ảnh chính hoặc xóa trực tiếp</p>
+									<div class="adm-img-zone__drop" data-zone="gallery" id="zone-gallery"></div>
+									<div class="adm-img-zone__upload">
+										<input type="file" id="list_image" name="list_image[]" class="form-control form-control-sm" multiple
+											accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,.jpg,.jpeg,.png,.webp,.gif,.bmp">
+										<p class="help-block" style="font-size:11px;color:#777;margin-top:6px;">Thêm ảnh mới vào danh sách kèm theo</p>
+									</div>
+								</div>
 							</div>
-							<div style="width: 250px;">
-								<input type="file" id="list_image" name="list_image[]" multiple accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,.jpg,.jpeg,.png,.webp,.gif,.bmp">
-								<p class="help-block" style="font-size: 11px; color: #777;">* Chỉ chọn nếu muốn thay đổi danh sách ảnh kèm theo mới.</p>
-							</div>
+							<script src="<?php echo base_url('assets/admin/js/product-images.js?v=1'); ?>"></script>
 						</div>
 					</div>
 
@@ -94,29 +111,40 @@ $this->load->view('admin/partials/form_open');
 					<div class="form-group">
 						<label for="price" class="col-sm-2 control-label">Giá tiền (VNĐ)</label>
 						<div class="col-sm-5">
-							<input type="text" name='price' class="form-control" id="price" value="<?php echo set_value('price', number_format($product->price)); ?>">
+							<input type="text" name="price" class="form-control" id="price" inputmode="numeric"
+								placeholder="Ví dụ: 1,455,000" value="<?php echo set_value('price', number_format($product->price)); ?>">
 						</div>
 						<div class="col-sm-4 text-danger">
 							<?php echo form_error('price'); ?>
 						</div>
 					</div>
 
+					<?php
+					if ($this->input->post('discount') !== false && $this->input->post('discount') !== null) {
+						$discount_display = set_value('discount');
+					} elseif ((int) $product->discount_percent > 0) {
+						$discount_display = (string) (int) $product->discount_percent;
+					} elseif ((int) $product->price > 0 && (int) $product->discount > 0) {
+						$discount_display = (string) (int) round($product->discount / $product->price * 100);
+					} else {
+						$discount_display = '';
+					}
+					?>
 					<div class="form-group">
-						<label for="discount" class="col-sm-2 control-label">Giảm giá (VNĐ)</label>
+						<label for="discount" class="col-sm-2 control-label">Giảm giá (%)</label>
 						<div class="col-sm-5">
-							<input type="text" name='discount' class="form-control" id="discount" value="<?php echo set_value('discount', number_format($product->discount)); ?>">
+							<div class="input-group">
+								<input type="text" name="discount" class="form-control" id="discount" inputmode="numeric"
+									placeholder="Ví dụ: 15" maxlength="3"
+									value="<?php echo html_escape($discount_display); ?>">
+								<span class="input-group-text">%</span>
+							</div>
+							<input type="hidden" name="discount_type" value="percent">
+							<p class="help-block text-muted" data-discount-preview style="font-size:11px;margin-top:6px;margin-bottom:0;"></p>
 						</div>
 					</div>
 
-					<div class="form-group">
-						<label for="quantity" class="col-sm-2 control-label">Số lượng tồn kho</label>
-						<div class="col-sm-5">
-							<input type="number" name='quantity' class="form-control" id="quantity" placeholder="Ví dụ: 100" value="<?php echo set_value('quantity', isset($product->quantity) ? intval($product->quantity) : 0); ?>" min="0">
-						</div>
-						<div class="col-sm-4 text-danger">
-							<?php echo form_error('quantity'); ?>
-						</div>
-					</div>
+					<script src="<?php echo base_url('assets/admin/js/product-price.js?v=2'); ?>"></script>
 
 					<div class="form-group">
 						<label class="col-sm-2 control-label">Màu sắc</label>
@@ -183,9 +211,44 @@ $this->load->view('admin/partials/form_open');
 									</label>
 								<?php endforeach; ?>
 							</div>
-							<p class="help-block" style="font-size: 11px; color: #777; margin-top: 8px; clear: both;">* Tích chọn các kích cỡ có sẵn của sản phẩm này.</p>
+							<p class="help-block" style="font-size: 11px; color: #777; margin-top: 8px; clear: both;">* Lưu sản phẩm để tự tạo biến thể mới theo tổ hợp màu × size (tồn kho cập nhật qua phiếu nhập).</p>
 						</div>
 					</div>
+
+					<?php if (!empty($variants)) { ?>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Biến thể</label>
+						<div class="col-sm-8">
+							<div class="table-responsive">
+								<table class="table table-sm table-bordered">
+									<thead>
+										<tr>
+											<th>SKU</th>
+											<th>Màu</th>
+											<th>Size</th>
+											<th>Giá bán</th>
+											<th>Giá nhập</th>
+											<th>Trạng thái</th>
+										</tr>
+									</thead>
+									<tbody>
+									<?php foreach ($variants as $v) { ?>
+										<tr>
+											<td><code><?php echo html_escape($v->sku); ?></code></td>
+											<td><?php echo html_escape($v->color !== '' ? $v->color : '—'); ?></td>
+											<td><?php echo html_escape($v->size !== '' ? $v->size : '—'); ?></td>
+											<td><?php echo number_format((float) $v->price); ?> ₫</td>
+											<td><?php echo number_format((float) $v->cost_price); ?> ₫</td>
+											<td><?php echo (int) $v->status === 1 ? 'Đang bán' : 'Ngưng'; ?></td>
+										</tr>
+									<?php } ?>
+									</tbody>
+								</table>
+							</div>
+							<p class="help-block text-muted mb-0">Tồn kho xem tại menu <a href="<?php echo admin_url('inventory'); ?>">Tồn kho</a>.</p>
+						</div>
+					</div>
+					<?php } ?>
 
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-5">

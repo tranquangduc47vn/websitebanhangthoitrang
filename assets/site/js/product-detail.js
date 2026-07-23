@@ -4,7 +4,7 @@
 (function ($) {
 	'use strict';
 
-	var ZOOM_LEVEL = 1.42;
+	var ZOOM_LEVEL = 4.0;
 
 	function getThumbUrls($link) {
 		var small = $link.attr('data-small');

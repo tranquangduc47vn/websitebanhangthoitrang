@@ -16,7 +16,7 @@ class Gioithieu extends MY_Controller {
 		$query = $this->db->get_where('pages', array('slug' => 'gioi-thieu'), 1);
 		$page = $query->row_array();
 
-		$this->data['page_title'] = isset($page['title']) ? $page['title'] : "Giới thiệu về JM Dress Design";
+		$this->data['page_title'] = isset($page['title']) ? $page['title'] : ('Giới thiệu về ' . shop_name());
 		$this->data['page_content'] = isset($page['content']) ? $page['content'] : "Nội dung giới thiệu đang được cập nhật...";
 
 		$this->load->model('news_model'); 

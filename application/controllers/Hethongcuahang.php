@@ -8,7 +8,7 @@ class Hethongcuahang extends MY_Frontend_Controller {
         $this->data['list_stores'] = $this->db->get('stores')->result();
         $this->data['slider'] = $this->db->get('slider')->result();
 
-        $this->data['page_title'] = 'Hệ thống cửa hàng - JM Dress Design';
+        $this->data['page_title'] = 'Hệ thống cửa hàng - ' . shop_name();
         $this->render_frontend_main('site/hethongcuahang/index');
     }
 }

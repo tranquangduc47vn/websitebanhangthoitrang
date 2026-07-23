@@ -10,4 +10,4 @@ $admin_footer_minimal = !empty($admin_footer_minimal);
 <script src="<?php echo $admin_asset_url; ?>js/bootstrap-datepicker.js"></script>
 <?php } ?>
 <script src="<?php echo $admin_asset_url; ?>js/bootstrap5.bundle.min.js"></script>
-<script src="<?php echo $admin_asset_url; ?>js/admin-layout.js?v=5"></script>
+<script src="<?php echo $admin_asset_url; ?>js/admin-layout.js?v=7"></script>

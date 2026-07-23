@@ -1,7 +1,7 @@
 <?php
 $site_asset_url = site_asset_url('');
 ?>
-<link rel="stylesheet" href="<?php echo $site_asset_url; ?>css/home-bestsellers.css?v=4">
+<link rel="stylesheet" href="<?php echo $site_asset_url; ?>css/home-bestsellers.css?v=9">
 
 <div class="row home-collection-banners" style="margin-top: 20px; margin-bottom: 40px;">
     <?php
@@ -34,32 +34,29 @@ $site_asset_url = site_asset_url('');
 
 <?php
 if (!function_exists('render_bestseller_card')) {
-    function render_bestseller_card($value, $rank = 0)
+    function render_bestseller_card($value)
     {
         $product_link = build_product_url($value);
-        $rank = (int) $rank;
-        $rank_class = ($rank >= 1 && $rank <= 3) ? ' jm-bs-card--rank-' . $rank : '';
         $name = product_display_name($value->name);
         $img = base_url('upload/product/' . $value->image_link);
+        $in_stock = product_is_in_stock($value);
         ?>
-        <li class="jm-bs-card<?php echo $rank_class; ?>">
-            <?php if ($rank > 0) { ?>
-                <span class="jm-bs-card__rank" aria-hidden="true">#<?php echo $rank; ?></span>
-            <?php } ?>
+        <li class="jm-bs-card<?php echo $in_stock ? '' : ' jm-bs-card--out-of-stock'; ?>">
             <div class="jm-bs-card__media">
-                <?php if ($value->discount > 0 && $value->price > 0) {
-                    $percent = min(99, (int) round(($value->discount / $value->price) * 100));
-                    if ($percent >= 1) {
-                    ?>
-                    <span class="jm-bs-card__badge-sale">−<?php echo $percent; ?>%</span>
-                <?php }
-                } ?>
+                <?php if (product_show_discount_badge($value)) { ?>
+                    <?php echo product_discount_badge_html($value, 'jm-bs-card__badge-sale'); ?>
+                <?php } ?>
+                <?php if (!$in_stock) { echo product_out_of_stock_badge_html('jm-bs-card__badge-oos'); } ?>
                 <a href="<?php echo $product_link; ?>" class="jm-bs-card__img-link">
                     <img src="<?php echo $img; ?>" alt="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy">
                 </a>
+                <?php if ($in_stock) { ?>
                 <a href="<?php echo site_url('gio-hang/them/' . (int) $value->id); ?>" class="jm-bs-card__cart-btn">
                     Thêm giỏ hàng
                 </a>
+                <?php } else { ?>
+                <span class="jm-bs-card__cart-btn jm-bs-card__cart-btn--disabled">Hết hàng</span>
+                <?php } ?>
             </div>
             <div class="jm-bs-card__body">
                 <h3 class="jm-bs-card__name">
@@ -88,7 +85,7 @@ if (!function_exists('render_bestseller_card')) {
 
 <section class="jm-bestsellers-lux" id="phan-ban-chay" aria-labelledby="jm-bestsellers-title">
     <header class="jm-bestsellers-lux__head">
-        <p class="jm-bestsellers-lux__eyebrow">JM Dress Design</p>
+        <p class="jm-bestsellers-lux__eyebrow"><?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?></p>
         <h2 class="jm-bestsellers-lux__title" id="jm-bestsellers-title">Sản phẩm bán chạy</h2>
         <div class="jm-bestsellers-lux__rule" aria-hidden="true"></div>
         <p class="jm-bestsellers-lux__sub">Những thiết kế được khách yêu thích nhất — cập nhật theo lượt bán thực tế.</p>
@@ -100,10 +97,8 @@ if (!function_exists('render_bestseller_card')) {
     <ul class="jm-bestsellers-lux__grid">
         <?php
         if (!empty($hot_product)) {
-            $rank = 0;
             foreach ($hot_product as $value) {
-                $rank++;
-                render_bestseller_card($value, $rank);
+                render_bestseller_card($value);
             }
         } else {
             echo '<li class="jm-bestsellers-lux__empty">Chưa có sản phẩm bán chạy.</li>';

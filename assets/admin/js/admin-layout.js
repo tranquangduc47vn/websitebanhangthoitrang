@@ -144,6 +144,67 @@
 		});
 	}
 
+	function initAutoFilterForms() {
+		var forms = document.querySelectorAll('main.admin-main form[method="get"]:not([data-admin-no-auto-filter])');
+		forms.forEach(function (form) {
+			if (form.getAttribute('data-admin-auto-filter-init') === '1') {
+				return;
+			}
+			form.setAttribute('data-admin-auto-filter-init', '1');
+
+			var delay = parseInt(form.getAttribute('data-admin-auto-filter-delay'), 10);
+			if (isNaN(delay) || delay < 0) {
+				delay = 400;
+			}
+
+			var debounceTimer = null;
+
+			function submitForm() {
+				form.submit();
+			}
+
+			function debouncedSubmit() {
+				clearTimeout(debounceTimer);
+				debounceTimer = setTimeout(submitForm, delay);
+			}
+
+			form.querySelectorAll('select').forEach(function (el) {
+				el.addEventListener('change', submitForm);
+			});
+
+			form.querySelectorAll('input[type="date"], input[type="datetime-local"]').forEach(function (el) {
+				el.addEventListener('change', submitForm);
+			});
+
+			form.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function (el) {
+				el.addEventListener('change', submitForm);
+			});
+
+			form.querySelectorAll('input[type="search"], input[type="text"], input[type="number"]').forEach(function (el) {
+				if (!el.name) {
+					return;
+				}
+				el.addEventListener('input', debouncedSubmit);
+				el.addEventListener('keydown', function (e) {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						clearTimeout(debounceTimer);
+						submitForm();
+					}
+				});
+			});
+
+			form.querySelectorAll('button[type="submit"]').forEach(function (btn) {
+				if (btn.closest('noscript') || btn.getAttribute('data-admin-keep-submit') === '1') {
+					return;
+				}
+				btn.classList.add('d-none');
+				btn.setAttribute('aria-hidden', 'true');
+				btn.tabIndex = -1;
+			});
+		});
+	}
+
 	document.addEventListener('DOMContentLoaded', function () {
 		initLogout();
 		initSidebarAutoClose();
@@ -151,6 +212,7 @@
 		initFlashAutoDismiss();
 		initDarkModeToggle();
 		initTableSearch();
+		initAutoFilterForms();
 
 		if (window.jQuery && jQuery.fn.datepicker) {
 			jQuery('#calendar').datepicker();

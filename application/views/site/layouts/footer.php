@@ -6,7 +6,7 @@ $wf_vnpay_fallback = site_asset_url('img/vnpay-mark.svg');
 	<div class="wf-chrome-footer__top">
 		<div class="wf-chrome-footer__grid">
 			<div class="wf-chrome-footer__col">
-				<h4 class="wf-chrome-footer__heading">JM DRESS DESIGN</h4>
+				<h4 class="wf-chrome-footer__heading"><?php echo htmlspecialchars(shop_name(true), ENT_QUOTES, 'UTF-8'); ?></h4>
 				<ul class="wf-chrome-footer__list">
 					<li><a href="<?php echo base_url('gioi-thieu'); ?>">Giới thiệu</a></li>
 					<li><a href="<?php echo build_news_index_url(); ?>">Tin tức</a></li>
@@ -68,7 +68,7 @@ $wf_vnpay_fallback = site_asset_url('img/vnpay-mark.svg');
 
 	<div class="wf-chrome-footer__bottom">
 		<div class="wf-chrome-footer__bottom-bar">
-			<p class="wf-chrome-footer__copy">©2009-2021 JM All Rights Reserved</p>
+			<p class="wf-chrome-footer__copy">&copy;<?php echo date('Y'); ?> <?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?>. All rights reserved.</p>
 			<p class="wf-chrome-footer__legal-inline">
 				<strong>CÔNG TY CỔ PHẦN THƯƠNG MẠI JDD VIỆT NAM</strong>
 				<span class="wf-chrome-footer__legal-sep" aria-hidden="true">·</span>

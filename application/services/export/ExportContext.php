@@ -16,7 +16,7 @@ class ExportContext
 		$this->module = $module;
 		$this->format = $format;
 		$this->exportedAt = time();
-		$this->storeName = 'Webshop';
+		$this->storeName = defined('SHOP_NAME') ? SHOP_NAME : 'qD Design';
 		$this->logoPath = '';
 		$this->exporterName = '';
 		$this->filterText = '';

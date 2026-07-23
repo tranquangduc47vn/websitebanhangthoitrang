@@ -11,7 +11,7 @@
 
 <div class="admin-card mb-3">
 	<div class="admin-card-body">
-		<form class="row g-2 align-items-end" action="<?php echo admin_url('orders'); ?>" method="get">
+		<form class="row g-2 align-items-end" action="<?php echo admin_url('orders'); ?>" method="get" data-admin-auto-filter>
 			<div class="col-md-3">
 				<label class="form-label small mb-1" for="ord-q">Tên / SĐT</label>
 				<input type="search" name="q" id="ord-q" class="form-control form-control-sm"
@@ -68,8 +68,8 @@
 					value="<?php echo htmlspecialchars(isset($filter_date_to) ? $filter_date_to : '', ENT_QUOTES, 'UTF-8'); ?>">
 			</div>
 			<div class="col-md-1 d-flex gap-2">
-				<button type="submit" class="btn btn-primary btn-sm flex-grow-1" title="Lọc"><i class="fa-solid fa-filter"></i></button>
-				<a href="<?php echo admin_url('orders'); ?>" class="btn btn-outline-secondary btn-sm" title="Xóa lọc"><i class="fa-solid fa-xmark"></i></a>
+				<a href="<?php echo admin_url('orders'); ?>" class="btn btn-outline-secondary btn-sm w-100" title="Xóa lọc"><i class="fa-solid fa-xmark"></i></a>
+				<noscript><button type="submit" class="btn btn-primary btn-sm w-100" title="Lọc"><i class="fa-solid fa-filter"></i></button></noscript>
 			</div>
 		</form>
 	</div>

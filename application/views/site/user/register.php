@@ -13,7 +13,7 @@
 		<div class="jm-auth-card">
 			<div class="jm-auth-card-head">
 				<h1 class="jm-auth-title">Đăng ký</h1>
-				<p class="jm-auth-subtitle">Tạo tài khoản để mua sắm tại JM Dress Design</p>
+				<p class="jm-auth-subtitle">Tạo tài khoản để mua sắm tại <?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?></p>
 			</div>
 
 			<?php if (!empty($message_success)) { ?>
@@ -45,7 +45,8 @@
 				<div class="jm-auth-field">
 					<label for="regPassword">Mật khẩu</label>
 					<input type="password" class="jm-auth-input" id="regPassword" name="password"
-						placeholder="••••••••" autocomplete="new-password" required>
+						placeholder="Tối thiểu 8 ký tự, có chữ và số" autocomplete="new-password" required minlength="8">
+					<p class="jm-auth-hint">Ít nhất 8 ký tự, gồm ít nhất 1 chữ cái và 1 chữ số.</p>
 					<?php echo form_error('password', '<span class="jm-auth-field-error">', '</span>'); ?>
 				</div>
 

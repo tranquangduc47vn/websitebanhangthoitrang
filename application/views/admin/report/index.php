@@ -29,8 +29,9 @@
 				<input type="date" name="date_to" class="form-control" value="<?php echo $this->input->get('date_to'); ?>">
 			</div>
 			<div class="col-md-4">
-				<button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-filter me-1"></i> Lọc dữ liệu</button>
+				<label class="form-label d-block">&nbsp;</label>
 				<a href="<?php echo admin_url('report'); ?>" class="btn btn-default btn-sm">Xóa bộ lọc</a>
+				<noscript><button type="submit" class="btn btn-primary btn-sm ms-1"><i class="fa-solid fa-filter me-1"></i> Lọc dữ liệu</button></noscript>
 			</div>
 		</form>
 	</div>

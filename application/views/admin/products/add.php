@@ -23,7 +23,7 @@ $old_colors = (array) $this->input->post('color');
 $old_sizes = (array) $this->input->post('size');
 ?>
 
-<form class="admin-form admin-product-form" action="<?php echo admin_url('products/add'); ?>" method="post" enctype="multipart/form-data">
+<form class="admin-form admin-product-form" action="<?php echo admin_url('products/add'); ?>" method="post" enctype="multipart/form-data" data-product-price-form>
 	<div class="row g-4">
 		<div class="col-12 col-xl-8">
 			<section class="admin-form-section">
@@ -69,19 +69,15 @@ $old_sizes = (array) $this->input->post('size');
 					</div>
 
 					<div class="col-12 col-md-4">
-						<label class="form-label" for="discount">Giảm giá</label>
+						<label class="form-label" for="discount">Giảm giá (%)</label>
 						<div class="input-group">
 							<input type="text" name="discount" class="form-control" id="discount"
-								placeholder="0" inputmode="numeric" value="<?php echo html_escape(set_value('discount')); ?>">
-							<span class="input-group-text">₫</span>
+								placeholder="15" inputmode="numeric" maxlength="3"
+								value="<?php echo html_escape(set_value('discount')); ?>">
+							<span class="input-group-text">%</span>
 						</div>
-					</div>
-
-					<div class="col-12 col-md-4">
-						<label class="form-label" for="quantity">Tồn kho</label>
-						<input type="number" name="quantity" class="form-control" id="quantity"
-							min="0" value="<?php echo html_escape(set_value('quantity', 0)); ?>">
-						<?php echo form_error('quantity'); ?>
+						<input type="hidden" name="discount_type" value="percent">
+						<p class="form-text text-muted mb-0" data-discount-preview></p>
 					</div>
 				</div>
 			</section>
@@ -137,6 +133,7 @@ $old_sizes = (array) $this->input->post('size');
 						</div>
 					</div>
 				</div>
+				<p class="form-text text-muted mt-2 mb-0">Sau khi lưu, hệ thống tự tạo biến thể theo tổ hợp màu × size. Tồn kho mặc định = 0 — dùng <strong>Phiếu nhập</strong> để cập nhật số lượng.</p>
 			</section>
 		</div>
 
@@ -154,6 +151,7 @@ $old_sizes = (array) $this->input->post('size');
 	</div>
 </form>
 
+<script src="<?php echo base_url('assets/admin/js/product-price.js?v=2'); ?>"></script>
 <script>
 (function () {
 	'use strict';
@@ -185,15 +183,6 @@ $old_sizes = (array) $this->input->post('size');
 			});
 		});
 	}
-
-	['price', 'discount'].forEach(function (id) {
-		var input = document.getElementById(id);
-		if (!input) return;
-		input.addEventListener('input', function () {
-			var digits = input.value.replace(/\D/g, '');
-			input.value = digits ? Number(digits).toLocaleString('en-US') : '';
-		});
-	});
 
 	if (window.CKEDITOR) {
 		CKEDITOR.replace('content');

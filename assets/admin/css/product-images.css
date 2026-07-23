@@ -1,0 +1,177 @@
+.adm-product-images {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	gap: 1rem;
+	width: 100%;
+}
+
+.adm-img-zone {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.adm-img-zone--main {
+	flex: 0 0 200px;
+	max-width: 200px;
+}
+
+.adm-img-zone--gallery {
+	flex: 1 1 auto;
+}
+
+.adm-img-zone__label {
+	font-weight: 600;
+	font-size: 0.875rem;
+	margin-bottom: 0.35rem;
+	white-space: nowrap;
+}
+
+.adm-img-zone__hint {
+	font-size: 0.75rem;
+	color: var(--adm-muted, #6c757d);
+	margin: 0 0 0.5rem;
+	line-height: 1.35;
+}
+
+.adm-img-zone__drop {
+	min-height: 96px;
+	padding: 0.65rem 0.75rem;
+	border: 2px dashed var(--adm-border, #dee2e6);
+	border-radius: 0.5rem;
+	background: var(--adm-surface-2, #f8f9fa);
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 0.65rem;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: thin;
+	transition: border-color 0.15s, background 0.15s;
+}
+
+.adm-img-zone__drop.is-dragover {
+	border-color: #2563eb;
+	background: rgba(37, 99, 235, 0.06);
+}
+
+.adm-img-zone--main .adm-img-zone__drop {
+	justify-content: center;
+}
+
+.adm-img-zone--gallery .adm-img-zone__drop {
+	justify-content: flex-start;
+}
+
+.adm-img-zone__empty {
+	font-size: 0.8125rem;
+	color: var(--adm-muted, #6c757d);
+	text-align: center;
+	padding: 0.5rem 0.75rem;
+	pointer-events: none;
+	user-select: none;
+	white-space: nowrap;
+	flex: 1 0 auto;
+}
+
+.adm-img-card {
+	position: relative;
+	width: 80px;
+	height: 80px;
+	border-radius: 0.375rem;
+	overflow: hidden;
+	border: 1px solid var(--adm-border, #dee2e6);
+	background: #fff;
+	cursor: grab;
+	flex: 0 0 auto;
+}
+
+.adm-img-card:active {
+	cursor: grabbing;
+}
+
+.adm-img-card.is-dragging {
+	opacity: 0.45;
+}
+
+.adm-img-card img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	pointer-events: none;
+}
+
+.adm-img-card__badge {
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-size: 0.625rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	padding: 0.15rem 0.35rem;
+	background: rgba(37, 99, 235, 0.9);
+	color: #fff;
+	border-bottom-right-radius: 0.25rem;
+}
+
+.adm-img-card__delete {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 22px;
+	height: 22px;
+	border: none;
+	border-radius: 50%;
+	background: rgba(220, 38, 38, 0.92);
+	color: #fff;
+	font-size: 14px;
+	line-height: 1;
+	padding: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+
+.adm-img-card:hover .adm-img-card__delete,
+.adm-img-card:focus-within .adm-img-card__delete {
+	opacity: 1;
+}
+
+.adm-img-zone__upload {
+	margin-top: 0.55rem;
+}
+
+.adm-img-zone__upload .form-control {
+	font-size: 0.8125rem;
+}
+
+@media (max-width: 767px) {
+	.adm-product-images {
+		flex-direction: column;
+	}
+
+	.adm-img-zone--main {
+		flex: 1 1 auto;
+		max-width: none;
+	}
+
+	.adm-img-zone__empty {
+		white-space: normal;
+	}
+}
+
+.admin-app.admin-dark .adm-img-zone__drop {
+	background: rgba(255, 255, 255, 0.03);
+	border-color: rgba(255, 255, 255, 0.15);
+}
+
+.admin-app.admin-dark .adm-img-card {
+	background: #1e293b;
+	border-color: rgba(255, 255, 255, 0.12);
+}

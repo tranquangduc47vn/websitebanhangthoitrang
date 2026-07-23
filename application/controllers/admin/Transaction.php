@@ -15,23 +15,17 @@ class Transaction extends MY_Admin_Controller {
 		$method = $this->router->fetch_method();
 		if ($method === 'chat') {
 			if (!admin_can('order.chat', $login)) {
-				$this->session->set_flashdata('message_fail', 'Bạn không có quyền truy cập chat khách hàng.');
+				admin_flash_fail('Bạn không có quyền truy cập chat khách hàng.');
 				redirect(admin_url('home'));
 			}
 		} elseif (!admin_can('order.manage', $login)) {
-			$this->session->set_flashdata('message_fail', 'Bạn không có quyền quản lý đơn hàng.');
+			admin_flash_fail('Bạn không có quyền quản lý đơn hàng.');
 			redirect(admin_url('home'));
 		}
 	}
 
 	public function index()
 	{
-		$message_success = $this->session->flashdata('message_success');
-		$this->data['message_success'] = $message_success;
-
-		$message_fail = $this->session->flashdata('message_fail');
-		$this->data['message_fail'] = $message_fail;
-
 		$filter_q = trim((string) $this->input->get('q'));
 		$filter_status = $this->input->get('status');
 		$filter_payment = $this->input->get('payment');
@@ -120,7 +114,7 @@ class Transaction extends MY_Admin_Controller {
 		$transaction = $this->transaction_model->get_info($id);
 		
 		if (empty($transaction)) {
-			$this->session->set_flashdata('message_fail', 'Đơn đặt hàng không tồn tại!');
+			admin_flash_fail('Đơn đặt hàng không tồn tại!');
 			redirect(admin_url('transaction'));
 		}
 
@@ -136,9 +130,9 @@ class Transaction extends MY_Admin_Controller {
 
 		// Xóa transaction sau khi đã xóa order con
 		if ($this->transaction_model->delete($id)) {
-			$this->session->set_flashdata('message_success', 'Xóa đơn đặt hàng và chi tiết sản phẩm thành công.');
+			admin_flash_success('Xóa đơn đặt hàng và chi tiết sản phẩm thành công.');
 		} else {
-			$this->session->set_flashdata('message_fail', 'Lỗi hệ thống! Không thể xóa đơn đặt hàng này.');
+			admin_flash_fail('Lỗi hệ thống! Không thể xóa đơn đặt hàng này.');
 		}
 		
 		redirect(admin_url('transaction'));
@@ -149,7 +143,7 @@ class Transaction extends MY_Admin_Controller {
 		$id = $this->uri->segment(4);
 		$transaction = $this->transaction_model->get_info($id);
 		if (empty($transaction)) {
-			$this->session->set_flashdata('message_fail', 'Đơn đặt hàng không tồn tại!');
+			admin_flash_fail('Đơn đặt hàng không tồn tại!');
 			redirect(admin_url('transaction'));
 		}
 		$this->data['transaction'] = $transaction;
@@ -176,7 +170,7 @@ class Transaction extends MY_Admin_Controller {
 		$where = array();
 		$where = array('id' => $id);
 		if (!$this->order_model->check_exists($where)) {
-			$this->session->set_flashdata('message_fail', 'Dòng sản phẩm trong đơn không tồn tại');
+			admin_flash_fail('Dòng sản phẩm trong đơn không tồn tại');
 			redirect(admin_url('transaction'));
 		}
 		$order = $this->order_model->get_info($id);
@@ -196,9 +190,9 @@ class Transaction extends MY_Admin_Controller {
 				$data['amount'] = $transaction->amount - $order->amount;
 				$this->transaction_model->update($transaction->id, $data);
 			}
-			$this->session->set_flashdata('message_success', 'Xóa thành công');
+			admin_flash_success('Xóa thành công');
 		} else {
-			$this->session->set_flashdata('message_fail', 'Xóa thất bại');
+			admin_flash_fail('Xóa thất bại');
 		}
 		redirect(admin_url('transaction/detail/' . $transaction_id));
 	}
@@ -208,15 +202,15 @@ class Transaction extends MY_Admin_Controller {
 		$id = $this->uri->segment(4);
 		$transaction = $this->transaction_model->get_info($id);
 		if (empty($transaction)) {
-			$this->session->set_flashdata('message_fail', 'Đơn đặt hàng không tồn tại!');
+			admin_flash_fail('Đơn đặt hàng không tồn tại!');
 			redirect(admin_url('transaction'));
 		}
 		if ((string) $transaction->status !== '0') {
-			$this->session->set_flashdata('message_fail', 'Chỉ có thể xác nhận đơn đang ở trạng thái chờ xử lý.');
+			admin_flash_fail('Chỉ có thể xác nhận đơn đang ở trạng thái chờ xử lý.');
 			redirect(admin_url('transaction/detail/' . $id));
 		}
 		$this->transaction_model->update($id, array('status' => '1'));
-		$this->session->set_flashdata('message_success', 'Xác nhận đơn đặt hàng thành công');
+		admin_flash_success('Xác nhận đơn đặt hàng thành công');
 		redirect(admin_url('transaction/detail/' . $id));
 	}
 
@@ -225,15 +219,15 @@ class Transaction extends MY_Admin_Controller {
 		$id = $this->uri->segment(4);
 		$transaction = $this->transaction_model->get_info($id);
 		if (empty($transaction)) {
-			$this->session->set_flashdata('message_fail', 'Đơn đặt hàng không tồn tại!');
+			admin_flash_fail('Đơn đặt hàng không tồn tại!');
 			redirect(admin_url('transaction'));
 		}
 		if ((string) $transaction->status !== '1') {
-			$this->session->set_flashdata('message_fail', 'Chỉ có thể giao hàng khi đơn đã được xác nhận.');
+			admin_flash_fail('Chỉ có thể giao hàng khi đơn đã được xác nhận.');
 			redirect(admin_url('transaction/detail/' . $id));
 		}
 		$this->transaction_model->update($id, array('status' => '2'));
-		$this->session->set_flashdata('message_success', 'Cập nhật trạng thái đơn hàng: Đang giao hàng');
+		admin_flash_success('Cập nhật trạng thái đơn hàng: Đang giao hàng');
 		redirect(admin_url('transaction/detail/' . $id));
 	}
 	public function complete()
@@ -242,22 +236,22 @@ class Transaction extends MY_Admin_Controller {
 		$transaction = $this->transaction_model->get_info($id);
 
 		if (empty($transaction)) {
-			$this->session->set_flashdata('message_fail', 'Đơn đặt hàng không tồn tại!');
+			admin_flash_fail('Đơn đặt hàng không tồn tại!');
 			redirect(admin_url('transaction'));
 		}
 
 		if ((string) $transaction->status === '3') {
-			$this->session->set_flashdata('message_fail', 'Đơn hàng đã hoàn thành trước đó.');
+			admin_flash_fail('Đơn hàng đã hoàn thành trước đó.');
 			redirect(admin_url('transaction/detail/' . $id));
 		}
 
 		if ((string) $transaction->status === '4') {
-			$this->session->set_flashdata('message_fail', 'Không thể hoàn thành đơn đã hủy.');
+			admin_flash_fail('Không thể hoàn thành đơn đã hủy.');
 			redirect(admin_url('transaction/detail/' . $id));
 		}
 
 		if (!in_array((string) $transaction->status, array('1', '2'), true)) {
-			$this->session->set_flashdata('message_fail', 'Đơn cần được xác nhận và chuyển giao trước khi hoàn thành.');
+			admin_flash_fail('Đơn cần được xác nhận và chuyển giao trước khi hoàn thành.');
 			redirect(admin_url('transaction/detail/' . $id));
 		}
 
@@ -268,7 +262,7 @@ class Transaction extends MY_Admin_Controller {
 		$transaction->status = '3';
 		$this->loyalty_model->credit_order_completed($transaction);
 
-		$this->session->set_flashdata('message_success', 'Đơn đặt hàng đã hoàn thành xuất sắc!');
+		admin_flash_success('Đơn đặt hàng đã hoàn thành xuất sắc!');
 		redirect(admin_url('transaction/detail/' . $id));
 	}
 
@@ -278,12 +272,12 @@ class Transaction extends MY_Admin_Controller {
 
 		$transaction = $this->transaction_model->get_info($id);
 		if (empty($transaction)) {
-			$this->session->set_flashdata('message_fail', 'Đơn đặt hàng không tồn tại!');
+			admin_flash_fail('Đơn đặt hàng không tồn tại!');
 			redirect(admin_url('transaction'));
 		}
 
 		if ((string) $transaction->status === '4') {
-			$this->session->set_flashdata('message_fail', 'Đơn hàng đã được hủy trước đó.');
+			admin_flash_fail('Đơn hàng đã được hủy trước đó.');
 			redirect(admin_url('transaction/detail/' . $id));
 		}
 
@@ -303,7 +297,7 @@ class Transaction extends MY_Admin_Controller {
 			'reason' => $reason,
 		));
 
-		$this->session->set_flashdata('message_fail', 'Đơn đặt hàng đã được đánh dấu trạng thái Hủy/Hoàn trả.');
+		admin_flash_success('Đã cập nhật trạng thái đơn hàng: Hủy/Hoàn trả.');
 		redirect(admin_url('transaction/detail/' . $id));
 	}
 

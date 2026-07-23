@@ -55,10 +55,24 @@ class Login extends MY_Controller {
 
 	function get_info_login()
 	{
-		$email = $this->input->post('email');
+		$email = trim((string) $this->input->post('email'));
 		$password = $this->input->post('password');
-		$where = array('email' => $email, 'password' => md5($password));
-		$user = $this->admin_model->get_info_rule($where);
-		return $user;
+		$user = $this->admin_model->get_info_rule(array('email' => $email));
+		if (!$user) {
+			return false;
+		}
+
+		$verified = verify_user_password($password, $user->password);
+		if ($verified === true) {
+			unset($user->password);
+			return $user;
+		}
+		if ($verified === 'rehash') {
+			$this->admin_model->update($user->id, array('password' => hash_user_password($password)));
+			unset($user->password);
+			return $user;
+		}
+
+		return false;
 	}
 }

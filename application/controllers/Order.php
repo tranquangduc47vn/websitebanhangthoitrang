@@ -9,6 +9,8 @@ class Order extends MY_Frontend_Controller {
         $this->load->library('form_validation');
         $this->load->helper('form');
         $this->load->model('product_model');
+        $this->load->library('product_service');
+        $this->load->library('inventory_service');
     }
 
     public function index()
@@ -16,6 +18,19 @@ class Order extends MY_Frontend_Controller {
         $carts = $this->session->userdata('custom_cart');
         if (!is_array($carts)) {
             $carts = array();
+        }
+
+        $sanitize = $this->_sanitize_cart($carts);
+        $carts = $sanitize['cart'];
+        if (!empty($sanitize['removed'])) {
+            $this->session->set_userdata('custom_cart', $carts);
+            $this->session->set_flashdata(
+                'message',
+                'Một số sản phẩm không còn bán (' . implode(', ', $sanitize['removed']) . ') và đã được xóa khỏi giỏ hàng.'
+            );
+            if (empty($carts)) {
+                redirect(build_cart_url());
+            }
         }
 
         $total_amount = 0;
@@ -47,6 +62,26 @@ class Order extends MY_Frontend_Controller {
                 $this->load->helper('loyalty');
                 $this->load->model('voucher_model');
 
+                $sanitize = $this->_sanitize_cart($carts);
+                $carts = $sanitize['cart'];
+                if (!empty($sanitize['removed'])) {
+                    $this->session->set_userdata('custom_cart', $carts);
+                    $this->session->set_flashdata(
+                        'message',
+                        'Không thể đặt hàng: sản phẩm "' . implode('", "', $sanitize['removed']) . '" không còn tồn tại. Vui lòng kiểm tra lại giỏ hàng.'
+                    );
+                    redirect(build_cart_url());
+                }
+                if (empty($carts)) {
+                    $this->session->set_flashdata('message', 'Giỏ hàng trống, không thể đặt hàng.');
+                    redirect(build_cart_url());
+                }
+
+                $total_amount = 0;
+                foreach ($carts as $value) {
+                    $total_amount = $total_amount + $value['subtotal'];
+                }
+
                 $payment_method = $this->input->post('payment');
                 if (empty($payment_method)) {
                     $payment_method = 'COD';
@@ -70,6 +105,11 @@ class Order extends MY_Frontend_Controller {
 
                 $final_amount = max(0, $cart_subtotal - $discount_amount);
 
+                $this->load->model('transaction_model');
+                $this->load->model('order_model');
+
+                $this->db->trans_start();
+
                 $data = array(
                     'user_id'      => $user_id,
                     'user_name'    => $this->input->post('name'),
@@ -85,7 +125,6 @@ class Order extends MY_Frontend_Controller {
                     'created'      => time()
                 );
                 
-                $this->load->model('transaction_model');
                 $this->transaction_model->create($data);
                 $transaction_id = $this->db->insert_id();
 
@@ -98,31 +137,58 @@ class Order extends MY_Frontend_Controller {
                     );
                 }
 
-                $this->load->model('order_model');
-
                 foreach ($carts as $items) {
+                    $product_info = $this->product_model->get_info($items['id']);
+                    if (empty($product_info)) {
+                        $this->db->trans_rollback();
+                        $this->session->set_flashdata(
+                            'message',
+                            'Không thể đặt hàng vì sản phẩm không còn tồn tại. Vui lòng cập nhật giỏ hàng.'
+                        );
+                        redirect(build_cart_url());
+                    }
+
+                    $size = isset($items['options']['size']) ? $items['options']['size'] : '';
+                    $color = isset($items['options']['color']) ? $items['options']['color'] : '';
+                    $variant_id = !empty($items['variant_id']) ? (int) $items['variant_id'] : 0;
+                    if ($variant_id <= 0) {
+                        $variant_id = $this->product_service->resolve_variant_id($items['id'], $color, $size, true);
+                    }
+
+                    $deduct = $this->inventory_service->deduct_for_order(
+                        $variant_id,
+                        (int) $items['qty'],
+                        (int) $transaction_id,
+                        $user_id,
+                        'Xuất kho đơn #' . (int) $transaction_id,
+                        false
+                    );
+                    if (empty($deduct['ok'])) {
+                        $this->db->trans_rollback();
+                        $this->session->set_flashdata('message', !empty($deduct['message']) ? $deduct['message'] : 'Không đủ tồn kho để đặt hàng.');
+                        redirect(build_checkout_url());
+                    }
+
                     $order_data = array(
                         'transaction_id' => $transaction_id,
                         'product_id'     => $items['id'],
-                        'size'           => isset($items['options']['size']) ? $items['options']['size'] : 'Mặc định',
-                        'color'          => isset($items['options']['color']) ? $items['options']['color'] : 'Mặc định',
+                        'variant_id'     => $variant_id,
+                        'size'           => $size !== '' ? $size : 'Mặc định',
+                        'color'          => $color !== '' ? $color : 'Mặc định',
                         'qty'            => $items['qty'],
                         'amount'         => $items['subtotal']
                     );
-                    $this->order_model->create($order_data);
-
-                    // Giữ chỗ tồn kho khi đặt hàng; buyed chỉ cộng khi admin xác nhận hoàn thành (status 3)
-                    $product_info = $this->product_model->get_info($items['id']);
-                    if (!empty($product_info)) {
-                        $current_stock = isset($product_info->quantity) ? intval($product_info->quantity) : 0;
-                        $new_stock = $current_stock - intval($items['qty']);
-                        if ($new_stock < 0) {
-                            $new_stock = 0;
-                        }
-                        $this->product_model->update($items['id'], array(
-                            'quantity' => $new_stock,
-                        ));
+                    if ($this->db->field_exists('cost_price', 'order') && $variant_id > 0 && $this->db->table_exists('product_variants')) {
+                        $vrow = $this->db->select('cost_price')->where('id', $variant_id)->get('product_variants')->row();
+                        $order_data['cost_price'] = $vrow ? max(0, (float) $vrow->cost_price) : 0;
                     }
+                    $this->order_model->create($order_data);
+                }
+
+                $this->db->trans_complete();
+                if ($this->db->trans_status() === FALSE) {
+                    $this->session->set_flashdata('message', 'Đặt hàng thất bại. Vui lòng thử lại sau.');
+                    redirect(build_checkout_url());
                 }
 
                 $this->_remember_order_access($transaction_id);
@@ -394,5 +460,31 @@ class Order extends MY_Frontend_Controller {
     private function _money_fmt($amount)
     {
         return number_format((int) $amount, 0, ',', '.') . ' ₫';
+    }
+
+    private function _sanitize_cart(array $carts)
+    {
+        $clean = array();
+        $removed = array();
+
+        foreach ($carts as $rowid => $item) {
+            $product_id = isset($item['id']) ? (int) $item['id'] : 0;
+            if ($product_id <= 0) {
+                continue;
+            }
+
+            $product = $this->product_model->get_info($product_id);
+            if (empty($product)) {
+                $removed[] = !empty($item['name']) ? $item['name'] : ('#' . $product_id);
+                continue;
+            }
+
+            $clean[$rowid] = $item;
+        }
+
+        return array(
+            'cart' => $clean,
+            'removed' => $removed,
+        );
     }
 }

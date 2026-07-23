@@ -522,6 +522,8 @@ CREATE TABLE `product` (
   `size` varchar(255) COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `price` decimal(15,2) NOT NULL DEFAULT '0.00',
   `discount` int DEFAULT '0',
+  `discount_type` varchar(10) COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT 'percent',
+  `discount_percent` int NOT NULL DEFAULT '0',
   `image_link` varchar(100) COLLATE utf8mb3_unicode_ci NOT NULL,
   `image_list` text COLLATE utf8mb3_unicode_ci NOT NULL,
   `view` int NOT NULL DEFAULT '0',
@@ -836,6 +838,61 @@ INSERT INTO `user_address` (`id`, `user_id`, `address_note`, `province_id`, `dis
 (1, 10, '', '', '', '', 'D3 Street, Phường Hiệp Phú, Thành phố Thủ Đức, Thành phố Hồ Chí Minh', 1, 1784631788),
 (2, 11, 'Huyện Ea Kar', '96', '972', '32218', 'Huyện Ea Kar, Xã Phú Tân, Huyện Phú Tân, Tỉnh Cà Mau', 1, 1784650081),
 (3, 12, 'Thôn 2', '66', '651', '24379', 'Thôn 2, Xã Ea Sô, Huyện Ea Kar, Tỉnh Đắk Lắk', 1, 1784653988);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `password_resets`
+--
+
+CREATE TABLE `password_resets` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `token_hash` varchar(64) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `expires_at` int NOT NULL,
+  `used_at` int NOT NULL DEFAULT '0',
+  `created` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_password_resets_token` (`token_hash`),
+  KEY `idx_password_resets_user` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `user_phone`
+--
+
+CREATE TABLE `user_phone` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `phone_label` varchar(50) COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `phone_number` varchar(20) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `created` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_phone_user` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `product_review`
+--
+
+CREATE TABLE `product_review` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `product_id` int NOT NULL,
+  `user_id` int NOT NULL DEFAULT '0',
+  `user_name` varchar(100) COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `stars` tinyint NOT NULL DEFAULT '5',
+  `session_token` varchar(64) COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `created` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_product_review_product` (`product_id`),
+  KEY `idx_product_review_user` (`user_id`),
+  KEY `idx_product_review_session` (`session_token`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 -- --------------------------------------------------------
 

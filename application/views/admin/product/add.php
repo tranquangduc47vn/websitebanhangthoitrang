@@ -4,7 +4,7 @@ $admin_form_breadcrumb = 'Sản phẩm';
 $admin_form_back_url = admin_url('product');
 $this->load->view('admin/partials/form_open');
 ?>
-				<form class="form-horizontal admin-form" action="<?php echo admin_url('product/add'); ?>" method="post" enctype="multipart/form-data">
+				<form class="form-horizontal admin-form" action="<?php echo admin_url('product/add'); ?>" method="post" enctype="multipart/form-data" data-product-price-form>
 				
 					<div class="form-group">
 						<label for="name" class="col-sm-2 control-label">Tên sản phẩm</label>
@@ -68,9 +68,10 @@ $this->load->view('admin/partials/form_open');
 					</div>
 
 					<div class="form-group">
-						<label for="price" class="col-sm-2 control-label">Giá tiền</label>
+						<label for="price" class="col-sm-2 control-label">Giá tiền (VNĐ)</label>
 						<div class="col-sm-5">
-							<input type="text" name='price' class="form-control" id="price" placeholder="Ví dụ: 250,000" value="<?php echo set_value('price'); ?>">
+							<input type="text" name="price" class="form-control" id="price" inputmode="numeric"
+								placeholder="Ví dụ: 250,000" value="<?php echo set_value('price'); ?>">
 						</div>
 						<div class="col-sm-4 text-danger">
 							<?php echo form_error('price'); ?>
@@ -78,11 +79,20 @@ $this->load->view('admin/partials/form_open');
 					</div>
 
 					<div class="form-group">
-						<label for="discount" class="col-sm-2 control-label">Giảm giá</label>
+						<label for="discount" class="col-sm-2 control-label">Giảm giá (%)</label>
 						<div class="col-sm-5">
-							<input type="text" name='discount' class="form-control" id="discount" placeholder="Nhập số tiền giảm (nếu có)" value="<?php echo set_value('discount'); ?>">
+							<div class="input-group">
+								<input type="text" name="discount" class="form-control" id="discount" inputmode="numeric"
+									placeholder="Ví dụ: 15" maxlength="3"
+									value="<?php echo html_escape(set_value('discount')); ?>">
+								<span class="input-group-text">%</span>
+							</div>
+							<input type="hidden" name="discount_type" value="percent">
+							<p class="help-block text-muted" data-discount-preview style="font-size:11px;margin-top:6px;margin-bottom:0;"></p>
 						</div>
 					</div>
+
+					<script src="<?php echo base_url('assets/admin/js/product-price.js?v=2'); ?>"></script>
 
 					<div class="form-group">
 						<label for="quantity" class="col-sm-2 control-label">Số lượng tồn kho</label>

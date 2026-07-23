@@ -105,4 +105,71 @@
 		}
 		return $out;
 	}
+
+	function product_has_discount($product)
+	{
+		if (!$product || !isset($product->price, $product->discount)) {
+			return false;
+		}
+		return (int) $product->price > 0 && (int) $product->discount > 0;
+	}
+
+	function product_sale_price($product)
+	{
+		if (!$product) {
+			return 0;
+		}
+		return max(0, (int) $product->price - (int) $product->discount);
+	}
+
+	function product_discount_percent($product)
+	{
+		if (!product_has_discount($product)) {
+			return 0;
+		}
+
+		if (isset($product->discount_type) && $product->discount_type === 'percent') {
+			$pct = isset($product->discount_percent) ? (int) $product->discount_percent : 0;
+			if ($pct > 0) {
+				return min(99, $pct);
+			}
+		}
+
+		return min(99, max(1, (int) round(((int) $product->discount / (int) $product->price) * 100)));
+	}
+
+	function product_show_discount_badge($product)
+	{
+		return product_discount_percent($product) >= 1;
+	}
+
+	function product_discount_badge_html($product, $class = 'jm-badge-discount')
+	{
+		if (!product_show_discount_badge($product)) {
+			return '';
+		}
+		$label = '−' . product_discount_percent($product) . '%';
+		return '<span class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
+	}
+
+	function product_is_in_stock($product)
+	{
+		if (empty($product)) {
+			return false;
+		}
+		return (int) (isset($product->quantity) ? $product->quantity : 0) > 0;
+	}
+
+	function product_out_of_stock_badge_html($class = 'jm-badge-out-of-stock')
+	{
+		return '<span class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '">Hết hàng</span>';
+	}
+
+	function shop_name($upper = false)
+	{
+		if ($upper) {
+			return defined('SHOP_NAME_UPPER') ? SHOP_NAME_UPPER : strtoupper(SHOP_NAME);
+		}
+		return defined('SHOP_NAME') ? SHOP_NAME : 'qD Design';
+	}
 ?>

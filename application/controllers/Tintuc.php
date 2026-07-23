@@ -32,7 +32,7 @@ class Tintuc extends MY_Controller {
             $this->data['list_news'] = array();
         }
 
-        $this->data['page_title'] = "Tin tức & Sự kiện - JM Dress Design";
+        $this->data['page_title'] = 'Tin tức & Sự kiện - ' . shop_name();
 
         $this->data['temp'] = 'site/tintuc_index';
         

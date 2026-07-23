@@ -83,7 +83,9 @@ $waiting_count = isset($waiting_count) ? (int) $waiting_count : 0;
 				</label>
 			</div>
 			<div class="col-md-2">
-				<button type="submit" class="btn btn-primary btn-sm w-100">Lọc</button>
+				<label class="form-label small mb-1 d-block">&nbsp;</label>
+				<a href="<?php echo admin_url('support-chat'); ?>" class="btn btn-outline-secondary btn-sm w-100">Xóa lọc</a>
+				<noscript><button type="submit" class="btn btn-primary btn-sm w-100 mt-1">Lọc</button></noscript>
 			</div>
 		</form>
 	</div>

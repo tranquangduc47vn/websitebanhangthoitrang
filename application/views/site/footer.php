@@ -5,7 +5,7 @@
             <div class="row" style="display: flex; flex-wrap: wrap;">
                 
                 <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
-                    <h4 class="jm-footer-heading">JM DRESS DESIGN</h4>
+                    <h4 class="jm-footer-heading"><?php echo htmlspecialchars(shop_name(true), ENT_QUOTES, 'UTF-8'); ?></h4>
                     <ul class="jm-footer-list">
                         <li><a href="<?php echo base_url('gioi-thieu'); ?>">Giới thiệu</a></li>
                         <li><a href="<?php echo build_news_index_url(); ?>">Tin tức</a></li>
@@ -73,7 +73,7 @@
         <div class="jm-footer-container">
             
             <div class="jm-copyright-bar">
-                <span style="color: #8c8c8c; font-size: 13px;">©2009-2021 JM All Rights Reserved</span>
+                <span style="color: #8c8c8c; font-size: 13px;">&copy;<?php echo date('Y'); ?> <?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?>. All rights reserved.</span>
                 <span style="color: #8c8c8c; font-size: 13px;">
                     Chúng tôi nhận thanh toán qua: 
                     <img src="<?php echo base_url(); ?>upload/icon/vnpay.png" alt="VNPay" style="height: 20px; margin-left: 5px; vertical-align: middle;">

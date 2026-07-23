@@ -31,7 +31,7 @@
             <!-- <div style="margin-top: 40px; padding: 20px; background: #d9edf7; border: 1px solid #bce8f1; border-radius: 4px;">
                 <h3 style="margin: 0 0 10px 0; color: #31708f; font-size: 16px; font-weight: bold;">Cách thức ứng tuyển:</h3>
                 <p style="margin: 0; color: #555; font-size: 14px;">
-                    Ứng viên nộp hồ sơ trực tiếp tại văn phòng hoặc gửi CV qua Email bộ phận tuyển dụng của <strong>Thời trang Ngọc Lan</strong>.
+                    Ứng viên nộp hồ sơ trực tiếp tại văn phòng hoặc gửi CV qua Email bộ phận tuyển dụng của <strong><?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?></strong>.
                 </p>
             </div> -->
             

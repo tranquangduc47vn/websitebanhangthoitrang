@@ -65,7 +65,23 @@ $route['admin/export/print_report/(:any)'] = 'admin/export/print_report/$1';
 $route['admin/products'] = 'admin/product/index';
 $route['admin/products/(.+)'] = 'admin/product/$1';
 $route['admin/inventory'] = 'admin/inventory/index';
+$route['admin/inventory/low-stock'] = 'admin/inventory/low_stock';
 $route['admin/inventory/(.+)'] = 'admin/inventory/$1';
+$route['admin/receipts'] = 'admin/stock_receipt/index';
+$route['admin/receipts/create'] = 'admin/stock_receipt/add';
+$route['admin/receipts/view/(:num)'] = 'admin/stock_receipt/view/$1';
+$route['admin/receipts/confirm/(:num)'] = 'admin/stock_receipt/confirm/$1';
+$route['admin/receipts/cancel/(:num)'] = 'admin/stock_receipt/cancel/$1';
+$route['admin/receipts/(.+)'] = 'admin/stock_receipt/$1';
+$route['admin/stock-movements'] = 'admin/stock_movements/index';
+$route['admin/stock-movements/(.+)'] = 'admin/stock_movements/$1';
+$route['admin/suppliers'] = 'admin/suppliers/index';
+$route['admin/suppliers/(.+)'] = 'admin/suppliers/$1';
+$route['admin/stock-receipts'] = 'admin/stock_receipt/index';
+$route['admin/stock-receipts/(.+)'] = 'admin/stock_receipt/$1';
+$route['admin/stock-inventory'] = 'admin/inventory/index';
+$route['admin/stock-inventory/low-stock'] = 'admin/inventory/low_stock';
+$route['admin/stock-inventory/(.+)'] = 'admin/inventory/$1';
 $route['admin/users'] = 'admin/user/index';
 $route['admin/users/(.+)'] = 'admin/user/$1';
 $route['admin/orders'] = 'admin/transaction/index';
@@ -98,11 +114,15 @@ $route['admin/tuyendung/delete/(:num)'] = 'admin/tuyendung/delete/$1';
 $route['gioi-thieu'] = 'gioithieu';
 $route['dang-nhap'] = 'user/login';
 $route['dang-ky'] = 'user/register';
+$route['quen-mat-khau'] = 'user/forgot_password';
+$route['dat-lai-mat-khau/(:any)'] = 'user/reset_password/$1';
+$route['dat-lai-mat-khau'] = 'user/reset_password';
 
 // —— SEO storefront (canonical) ——
 $route['gio-hang'] = 'cart/index';
 $route['gio-hang/them/(:num)'] = 'cart/add/$1';
 $route['gio-hang/add/(:num)'] = 'cart/add/$1';
+$route['gio-hang/cap-nhat-thuoc-tinh'] = 'cart/update_options';
 $route['gio-hang/update/(.+)'] = 'cart/update/$1';
 $route['gio-hang/del/(.+)'] = 'cart/del/$1';
 $route['gio-hang/del'] = 'cart/del';
@@ -173,6 +193,7 @@ $route['product/index'] = 'product/index';
 $route['product/views'] = 'product/views';
 $route['product/news'] = 'product/news';
 $route['product/raty'] = 'product/raty';
+$route['product/raty-undo'] = 'product/raty_undo';
 
 // Category SEO + price filters + pagination offset (same offset semantics as before)
 $route['([a-z0-9-]+)/duoi-200k/(:num)'] = 'product/catalog_seo/$1/duoi-200k/$2';

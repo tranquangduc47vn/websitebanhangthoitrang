@@ -13,7 +13,7 @@ class PdfReportWriter
 		$pdf->SetTitle($def->title);
 		$pdf->setPrintHeader(false);
 		$pdf->setPrintFooter(true);
-		$storeName = $ctx->storeName !== '' ? $ctx->storeName : 'Webshop';
+		$storeName = $ctx->storeName !== '' ? $ctx->storeName : (defined('SHOP_NAME') ? SHOP_NAME : 'qD Design');
 		$pdf->footerLeftText = $def->title . ' - ' . $storeName;
 		$pdf->SetMargins(15, 14, 15);
 		$pdf->SetAutoPageBreak(true, 20);

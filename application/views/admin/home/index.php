@@ -1,6 +1,6 @@
 <?php
 $CI =& get_instance();
-$CI->load->helper(array('admin_dashboard', 'admin', 'permission'));
+$CI->load->helper(array('admin_dashboard', 'admin', 'permission', 'seo_url'));
 
 $period = $CI->input->get('period') ? $CI->input->get('period') : '30d';
 $from = $CI->input->get('from') ? $CI->input->get('from') : '';
@@ -35,7 +35,7 @@ $filter_base = admin_url('home');
 $period_key = $range['key'];
 ?>
 
-<link rel="stylesheet" href="<?php echo $admin_asset; ?>css/admin-dashboard.css?v=11">
+<link rel="stylesheet" href="<?php echo $admin_asset; ?>css/admin-dashboard.css?v=13">
 
 <div class="adm-dash">
 	<div class="adm-dash-hero">
@@ -66,7 +66,7 @@ $period_key = $range['key'];
 			<div class="adm-dash-filter__custom" id="admDashCustomRange" <?php echo $period_key === 'custom' ? '' : 'hidden'; ?>>
 				<label>Từ <input type="date" name="from" value="<?php echo htmlspecialchars($from, ENT_QUOTES, 'UTF-8'); ?>"></label>
 				<label>Đến <input type="date" name="to" value="<?php echo htmlspecialchars($to, ENT_QUOTES, 'UTF-8'); ?>"></label>
-				<button type="submit" class="btn btn-sm btn-primary">Áp dụng</button>
+				<noscript><button type="submit" class="btn btn-sm btn-primary">Áp dụng</button></noscript>
 			</div>
 			<?php if ($period_key !== 'custom') { ?>
 				<noscript><button type="submit" class="btn btn-sm btn-outline-primary mt-2">Lọc</button></noscript>
@@ -76,27 +76,31 @@ $period_key = $range['key'];
 
 	<?php $this->load->helper('export'); admin_export_toolbar('dashboard'); ?>
 
-	<div class="row g-3 mb-4">
-		<?php foreach ($dash['kpis'] as $kpi) {
-			if (!admin_dashboard_kpi_allowed($kpi['key'], $login)) {
-				continue;
+	<div id="admDashKpiRows">
+	<?php foreach ($dash['kpi_groups'] as $group) {
+		$group_visible = false;
+		foreach ($group['items'] as $kpi) {
+			if (admin_dashboard_kpi_allowed($kpi['key'], $login)) {
+				$group_visible = true;
+				break;
 			}
-		?>
-			<div class="col-6 col-xl-3">
-				<div class="adm-dash-kpi">
-					<div class="adm-dash-kpi__label"><?php echo htmlspecialchars($kpi['label'], ENT_QUOTES, 'UTF-8'); ?></div>
-					<div class="adm-dash-kpi__value"><?php echo admin_dashboard_format_kpi($kpi['value'], $kpi['format']); ?></div>
-					<?php if (!empty($kpi['hint'])) { ?>
-						<div class="adm-dash-kpi__hint"><?php echo htmlspecialchars($kpi['hint'], ENT_QUOTES, 'UTF-8'); ?></div>
-					<?php } ?>
-					<?php if ($kpi['key'] !== 'low_stock') {
-						echo admin_dashboard_kpi_delta_html($kpi['delta']);
-					} else { ?>
-						<span class="adm-dash-kpi__delta adm-dash-kpi__delta--flat">Theo tồn hiện tại</span>
-					<?php } ?>
-				</div>
-			</div>
-		<?php } ?>
+		}
+		if (!$group_visible) {
+			continue;
+		}
+	?>
+	<section class="adm-dash-kpi-group adm-dash-kpi-group--<?php echo htmlspecialchars($group['id'], ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($group['title'], ENT_QUOTES, 'UTF-8'); ?>">
+		<div class="adm-dash-kpi-group__head">
+			<i class="<?php echo htmlspecialchars($group['icon'], ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"></i>
+			<h3 class="adm-dash-kpi-group__title"><?php echo htmlspecialchars($group['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+		</div>
+		<div class="row g-3 adm-dash-kpi-row">
+			<?php foreach ($group['items'] as $kpi) {
+				$this->load->view('admin/home/partials/kpi_card', array('kpi' => $kpi, 'login' => $login));
+			} ?>
+		</div>
+	</section>
+	<?php } ?>
 	</div>
 
 	<?php if ($dash_has_quick || $dash_has_notify) { ?>
@@ -301,6 +305,58 @@ $period_key = $range['key'];
 	</div>
 	<?php } ?>
 
+	<?php if ($dash_perm['products']) { ?>
+	<div class="row g-3 mb-4" id="admDashReviews">
+		<div class="col-12">
+			<div class="adm-dash-card">
+				<div class="adm-dash-card__head adm-dash-card__head--between">
+					<span><i class="fa-solid fa-star text-warning me-2"></i>Khách hàng đánh giá</span>
+					<span class="text-muted small"><?php echo htmlspecialchars($range['label'], ENT_QUOTES, 'UTF-8'); ?></span>
+				</div>
+				<div class="adm-dash-card__body p-0">
+					<?php if (!empty($dash['recent_reviews'])) { ?>
+					<div class="table-responsive adm-dash-table-wrap">
+						<table class="table table-hover admin-table mb-0" id="dashboardProductReviews">
+							<thead>
+								<tr>
+									<th>Khách hàng</th>
+									<th>Sản phẩm</th>
+									<th>Sao</th>
+									<th>Thời gian</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($dash['recent_reviews'] as $review) {
+									$product_name = !empty($review->product_name) ? $review->product_name : ('SP #' . (int) $review->product_id);
+									$product_url = build_product_url((int) $review->product_id);
+								?>
+									<tr>
+										<td><?php echo htmlspecialchars($review->user_name, ENT_QUOTES, 'UTF-8'); ?></td>
+										<td>
+											<a href="<?php echo htmlspecialchars($product_url, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+												<?php echo htmlspecialchars($product_name, ENT_QUOTES, 'UTF-8'); ?>
+											</a>
+										</td>
+										<td><span class="badge bg-warning text-dark"><?php echo (int) $review->stars; ?>/5</span></td>
+										<td><?php echo date('d/m/Y H:i', (int) $review->created); ?></td>
+										<td class="text-nowrap">
+											<a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($product_url, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">Xem SP</a>
+										</td>
+									</tr>
+								<?php } ?>
+							</tbody>
+						</table>
+					</div>
+					<?php } else { ?>
+						<div class="admin-empty p-3">Chưa có khách hàng đánh giá trong kỳ đã chọn.</div>
+					<?php } ?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php } ?>
+
 	<?php if ($dash_perm['inventory']) { ?>
 	<div class="row g-3 mb-4 adm-dash-row-stock">
 		<div class="col-12">
@@ -355,5 +411,5 @@ $period_key = $range['key'];
 window.admDashboardChart = <?php echo json_encode($chart_payload, JSON_UNESCAPED_UNICODE); ?>;
 </script>
 	<?php } ?>
-<script src="<?php echo $admin_asset; ?>js/admin-dashboard.js?v=4"></script>
+<script src="<?php echo $admin_asset; ?>js/admin-dashboard.js?v=5"></script>
 </div>

@@ -11,12 +11,12 @@
 
 <div class="admin-card mb-3">
 	<div class="admin-card-body">
-		<form class="row g-2 align-items-end" action="<?php echo admin_url('product/index'); ?>" method="get">
-			<div class="col-md-4">
+		<form class="row g-2 align-items-end" action="<?php echo admin_url('product/index'); ?>" method="get" data-admin-auto-filter>
+			<div class="col-md-5">
 				<label for="search_name" class="form-label">Tên sản phẩm</label>
-				<input type="text" name="name" class="form-control form-control-sm" id="search_name" placeholder="Nhập tên cần tìm..." value="<?php echo isset($search_name) ? $search_name : ''; ?>">
+				<input type="search" name="name" class="form-control form-control-sm" id="search_name" placeholder="Nhập tên cần tìm..." value="<?php echo isset($search_name) ? $search_name : ''; ?>">
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-5">
 				<label for="search_catalog" class="form-label">Danh mục</label>
 				<select name="catalog_id" class="form-select form-select-sm" id="search_catalog">
 							<option value="">-- Tất cả danh mục --</option>
@@ -46,11 +46,9 @@
 							?>
 					</select>
 			</div>
-			<div class="col-md-4">
-				<button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-search me-1"></i> Tìm kiếm</button>
-				<?php if (!empty($search_name) || !empty($search_catalog)) { ?>
-					<a href="<?php echo admin_url('product'); ?>" class="btn btn-default btn-sm">Xóa bộ lọc</a>
-				<?php } ?>
+			<div class="col-md-2">
+				<a href="<?php echo admin_url('product'); ?>" class="btn btn-outline-secondary btn-sm w-100">Xóa bộ lọc</a>
+				<noscript><button type="submit" class="btn btn-primary btn-sm w-100 mt-1">Tìm kiếm</button></noscript>
 			</div>
 		</form>
 	</div>
@@ -58,19 +56,13 @@
 
 <div id="message"></div>
 
-<?php if (!empty($message_success)) { ?>
-	<div class="alert alert-success"><strong>Thành công!</strong> <?php echo $message_success; ?></div>
-<?php } ?>
-<?php if (!empty($message_fail)) { ?>
-	<div class="alert alert-danger"><strong>Lỗi!</strong> <?php echo $message_fail; ?></div>
-<?php } ?>
-
 <div class="admin-card">
 	<div class="admin-card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
 		<span>Quản lý sản phẩm (Tìm thấy: <strong><?php echo $total; ?></strong>)</span>
 		<a href="<?php echo admin_url('product/add'); ?>" class="btn btn-sm btn-success"><i class="fa-solid fa-plus me-1"></i> Thêm sản phẩm</a>
 	</div>
 	<div class="admin-card-body">
+				<form method="post" action="<?php echo admin_url('product/bulk_del'); ?>" id="bulk-delete-form">
 				<div class="table-responsive">
 					<table class="table table-hover table-bordered admin-table">
 						<thead>
@@ -193,11 +185,12 @@
 					
 					<div class="admin-table-footer">
 						<?php if ($this->session->userdata('login')->level == ROLE_ADMIN) { ?>
-							<button type="button" class="btn btn-danger btn-sm" id="submit-del">Xóa mục đã chọn</button>
+							<button type="submit" class="btn btn-danger btn-sm" id="submit-del">Xóa mục đã chọn</button>
 						<?php } ?>
 						<div><?php echo $this->pagination->create_links(); ?></div>
 					</div>
 				</div>
+				</form>
 	</div>
 </div>
 
@@ -240,32 +233,17 @@
 			}
 		});
 
-		// Xóa loạt mục qua checkbox
-		$('#submit-del').click(function(e){
-			e.preventDefault();
+		// Xóa hàng loạt qua form POST (checkbox[] gửi trực tiếp lên server)
+		$('#bulk-delete-form').on('submit', function(e){
 			var selected_checkboxes = $("input[name='checkbox[]']:checked");
-			if(selected_checkboxes.length === 0) {
-				alert('Vui lòng chọn ít nhất một sản phẩm thời trang để xóa!');
+			if (selected_checkboxes.length === 0) {
+				e.preventDefault();
+				alert('Vui lòng chọn ít nhất một sản phẩm để xóa!');
 				return false;
 			}
-			
-			if(confirm('Cảnh báo hệ thống: Bạn chắc chắn muốn xóa loạt sản phẩm đã chọn?')) {
-				var ids = [];
-				selected_checkboxes.each(function(){
-					ids.push($(this).val());
-				});
-				
-				$.ajax({
-					url: '<?php echo admin_url('product'); ?>', 
-					type: 'post',
-					data: { checkbox: ids },
-					success: function(response){
-						location.reload();
-					},
-					error: function(){
-						alert('Hệ thống từ chối thực hiện tác vụ này!');
-					}
-				});
+			if (!confirm('Cảnh báo: Bạn chắc chắn muốn xóa ' + selected_checkboxes.length + ' sản phẩm đã chọn? Dữ liệu đơn hàng liên quan cũng sẽ bị xóa.')) {
+				e.preventDefault();
+				return false;
 			}
 		});
 	});

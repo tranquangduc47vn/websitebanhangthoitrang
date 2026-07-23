@@ -2,6 +2,23 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 $wf_cart_total = isset($total_items) ? (int) $total_items : 0;
 $wf_carts = (isset($carts) && is_array($carts)) ? $carts : array();
+
+$wf_nav_men = base_url('moi');
+$wf_nav_women = base_url('moi');
+$wf_nav_family = base_url('moi');
+if (isset($catalog) && is_array($catalog)) {
+	foreach ($catalog as $parent) {
+		if (isset($parent->name) && $parent->name === 'Thời trang nam') {
+			$wf_nav_men = build_category_url($parent->id);
+		}
+		if ((int) $parent->id === 8) {
+			$wf_nav_women = build_category_url($parent->id);
+		}
+		if ((int) $parent->id === 9) {
+			$wf_nav_family = build_category_url($parent->id);
+		}
+	}
+}
 ?>
 <div class="wf-chrome-2026">
 	<div class="wf-chrome-shell">
@@ -18,66 +35,9 @@ $wf_carts = (isset($carts) && is_array($carts)) ? $carts : array();
 				<nav class="wf-chrome-nav" id="wfChromeNavDrawer" aria-label="Menu chính">
 					<ul class="wf-chrome-menu">
 						<li class="wf-chrome-menu__item is-active"><a href="<?php echo base_url(); ?>">HOME</a></li>
-						<li class="wf-chrome-menu__item wf-chrome-menu__item--has-sub">
-							<button type="button" class="wf-chrome-menu__trigger" aria-expanded="false">
-								THỜI TRANG NAM <i class="fa-solid fa-chevron-down wf-chrome-menu__caret" aria-hidden="true"></i>
-							</button>
-							<ul class="wf-chrome-submenu">
-								<?php
-								if (isset($catalog)) {
-									foreach ($catalog as $parent) {
-										if ($parent->name == 'Thời trang nam' && isset($parent->sub) && is_array($parent->sub)) {
-											foreach ($parent->sub as $sub) {
-												?>
-												<li><a href="<?php echo build_category_url($sub->id); ?>"><?php echo $sub->name; ?></a></li>
-												<?php
-											}
-										}
-									}
-								}
-								?>
-							</ul>
-						</li>
-						<li class="wf-chrome-menu__item wf-chrome-menu__item--has-sub">
-							<button type="button" class="wf-chrome-menu__trigger" aria-expanded="false">
-								THỜI TRANG NỮ <i class="fa-solid fa-chevron-down wf-chrome-menu__caret" aria-hidden="true"></i>
-							</button>
-							<ul class="wf-chrome-submenu">
-								<?php
-								if (isset($catalog)) {
-									foreach ($catalog as $parent) {
-										if ($parent->id == 8 && isset($parent->sub) && is_array($parent->sub)) {
-											foreach ($parent->sub as $sub) {
-												?>
-												<li><a href="<?php echo build_category_url($sub->id); ?>"><?php echo $sub->name; ?></a></li>
-												<?php
-											}
-										}
-									}
-								}
-								?>
-							</ul>
-						</li>
-						<li class="wf-chrome-menu__item wf-chrome-menu__item--has-sub">
-							<button type="button" class="wf-chrome-menu__trigger" aria-expanded="false">
-								THỜI TRANG GIA ĐÌNH <i class="fa-solid fa-chevron-down wf-chrome-menu__caret" aria-hidden="true"></i>
-							</button>
-							<ul class="wf-chrome-submenu">
-								<?php
-								if (isset($catalog)) {
-									foreach ($catalog as $parent) {
-										if ($parent->id == 9 && isset($parent->sub) && is_array($parent->sub)) {
-											foreach ($parent->sub as $sub) {
-												?>
-												<li><a href="<?php echo build_category_url($sub->id); ?>"><?php echo $sub->name; ?></a></li>
-												<?php
-											}
-										}
-									}
-								}
-								?>
-							</ul>
-						</li>
+						<li class="wf-chrome-menu__item"><a href="<?php echo htmlspecialchars($wf_nav_men, ENT_QUOTES, 'UTF-8'); ?>">THỜI TRANG NAM</a></li>
+						<li class="wf-chrome-menu__item"><a href="<?php echo htmlspecialchars($wf_nav_women, ENT_QUOTES, 'UTF-8'); ?>">THỜI TRANG NỮ</a></li>
+						<li class="wf-chrome-menu__item"><a href="<?php echo htmlspecialchars($wf_nav_family, ENT_QUOTES, 'UTF-8'); ?>">THỜI TRANG GIA ĐÌNH</a></li>
 					</ul>
 				</nav>
 

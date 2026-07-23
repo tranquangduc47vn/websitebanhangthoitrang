@@ -1,11 +1,14 @@
 <div class="col-xs-12 col-sm-6 col-md-4 col-lg-2" style="margin-bottom: 20px;">
-    <div class="thumbnail text-center" style="position: relative; padding: 10px; border-radius: 4px; min-height: 320px;">
+        <div class="thumbnail text-center" style="position: relative; padding: 10px; border-radius: 4px; min-height: 320px;">
         
+        <div style="position:relative;display:inline-block;max-width:100%;">
+        <?php echo product_discount_badge_html($product_data, 'jm-badge-discount'); ?>
         <a href="<?php echo build_product_url($product_data); ?>">
             <img src="<?php echo base_url('upload/product/'.$product_data->image_link); ?>" 
                  alt="<?php echo htmlspecialchars(product_display_name($product_data->name), ENT_QUOTES, 'UTF-8'); ?>" 
                  style="max-height: 150px; object-fit: contain; margin-bottom: 10px;">
         </a>
+        </div>
         
         <div class="caption" style="padding: 0;">
             <h4 style="font-size: 14px; height: 36px; overflow: hidden; font-weight: bold; margin: 5px 0;">

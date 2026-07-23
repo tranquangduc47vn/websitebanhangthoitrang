@@ -1,5 +1,5 @@
 /**
- * Catalog page — filter UX; single submit + lighter collapse
+ * Catalog — auto-submit filter + AJAX pagination (no full-page flash)
  */
 (function ($) {
 	'use strict';
@@ -15,14 +15,20 @@
 		}
 
 		var formEl = document.getElementById('filter-form');
-		if (!formEl) {
-			return;
-		}
-
+		var $results = $('#jm-catalog-results');
 		var submitLock = false;
+		var pageLock = false;
 
 		function beginLoading() {
 			$root.addClass('is-filter-loading');
+		}
+
+		function beginPageLoading() {
+			$root.addClass('is-page-loading');
+		}
+
+		function endPageLoading() {
+			$root.removeClass('is-page-loading');
 		}
 
 		function submitFilterOnce() {
@@ -36,63 +42,124 @@
 			});
 		}
 
-		$root.find('.jm-size-label').on('click', function (e) {
-			e.preventDefault();
-			var input = this.querySelector('input[type="checkbox"]');
-			if (!input) {
+		function scrollToResults() {
+			var el = $root.find('.jm-product-content')[0];
+			if (!el) {
 				return;
 			}
-			input.checked = !input.checked;
-			submitFilterOnce();
-		});
+			var stickyTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--wf-chrome-offset'), 10) || 120;
+			var top = el.getBoundingClientRect().top + window.pageYOffset - stickyTop - 12;
+			window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+		}
 
-		$root.find('.jm-color-label').on('click', function (e) {
-			e.preventDefault();
-			var input = this.querySelector('input[type="checkbox"]');
-			if (!input) {
+		function loadCatalogPage(url, pushHistory) {
+			if (pageLock || !$results.length) {
 				return;
 			}
-			input.checked = !input.checked;
-			submitFilterOnce();
-		});
 
-		$(formEl).on('change', 'input[name="category[]"]', function () {
-			submitFilterOnce();
-		});
+			pageLock = true;
+			beginPageLoading();
 
-		$(formEl).on('change', 'input[name="price_range"]', function () {
-			submitFilterOnce();
-		});
+			fetch(url, {
+				method: 'GET',
+				credentials: 'same-origin',
+				headers: {
+					'X-Requested-With': 'XMLHttpRequest',
+					Accept: 'text/html'
+				}
+			})
+				.then(function (response) {
+					if (!response.ok) {
+						throw new Error('HTTP ' + response.status);
+					}
+					return response.text();
+				})
+				.then(function (html) {
+					var doc = new DOMParser().parseFromString(html, 'text/html');
+					var fresh = doc.getElementById('jm-catalog-results');
+					if (!fresh) {
+						window.location.href = url;
+						return;
+					}
+
+					$results.css('opacity', 0);
+					window.requestAnimationFrame(function () {
+						$results.html(fresh.innerHTML);
+						if (pushHistory !== false) {
+							window.history.pushState({ catalogPage: url }, '', url);
+						}
+						$results.css('opacity', 1);
+						scrollToResults();
+					});
+				})
+				.catch(function () {
+					window.location.href = url;
+				})
+				.finally(function () {
+					endPageLoading();
+					pageLock = false;
+				});
+		}
+
+		if (formEl) {
+			$root.find('.jm-size-label').each(function () {
+				var input = this.querySelector('input[type="checkbox"]');
+				if (input) {
+					$(this).toggleClass('active', input.checked);
+				}
+			});
+
+			$root.find('.jm-color-label').each(function () {
+				var input = this.querySelector('input[type="checkbox"]');
+				if (input) {
+					$(this).toggleClass('active', input.checked);
+				}
+			});
+
+			$(formEl).on('change', 'input[name="size[]"]', function () {
+				$(this).closest('.jm-size-label').toggleClass('active', this.checked);
+				submitFilterOnce();
+			});
+
+			$(formEl).on('change', 'input[name="color[]"]', function () {
+				$(this).closest('.jm-color-label').toggleClass('active', this.checked);
+				submitFilterOnce();
+			});
+
+			$(formEl).on('change', 'input[name="category[]"]', function () {
+				submitFilterOnce();
+			});
+
+			$(formEl).on('change', 'input[name="price_range"]', function () {
+				submitFilterOnce();
+			});
+		}
 
 		$root.find('.jm-sort-box form').on('submit', function () {
 			beginLoading();
 		});
 
-		function toggleFilterPanel($toggle) {
-			var selector = $toggle.attr('data-target');
-			if (!selector) {
+		$root.on('click', '.jm-catalog-pagination a[href]', function (event) {
+			var href = this.getAttribute('href');
+			if (!href || href.charAt(0) === '#') {
 				return;
 			}
-			var panel = document.querySelector(selector);
-			if (!panel) {
-				return;
-			}
-			var willOpen = !panel.classList.contains('in');
-			panel.classList.toggle('in', willOpen);
-			$toggle.toggleClass('collapsed', !willOpen);
-			$toggle.attr('aria-expanded', willOpen ? 'true' : 'false');
-		}
 
-		$root.find('.jm-filter-toggle').on('click', function (e) {
-			e.preventDefault();
-			toggleFilterPanel($(this));
+			try {
+				var target = new URL(href, window.location.origin);
+				if (target.origin !== window.location.origin) {
+					return;
+				}
+			} catch (e) {
+				return;
+			}
+
+			event.preventDefault();
+			loadCatalogPage(href, true);
 		});
 
-		$root.find('.jm-filter-toggle').on('keydown', function (e) {
-			if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				toggleFilterPanel($(this));
-			}
+		window.addEventListener('popstate', function () {
+			loadCatalogPage(window.location.href, false);
 		});
 	});
 })(window.jQuery);

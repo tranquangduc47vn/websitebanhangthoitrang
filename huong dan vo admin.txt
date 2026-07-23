@@ -15,6 +15,8 @@ Phiên bản đang dùng trên máy dev (tham khảo, cập nhật 2026-07-21):
   • Tạo database tên: webshop (utf8 / utf8_general_ci)
   • Import file .sql bằng phpMyAdmin hoặc dòng lệnh, ví dụ:
       mysql -u root -p webshop < databaseaddphpmyadmin/webshop.sql
+  • (Khuyến nghị) Cập nhật schema mới nhất:
+      php databaseaddphpmyadmin/run_migrations.php
 
 --------------------------------------------------------------------------------
 2. CẤU HÌNH TRONG PROJECT

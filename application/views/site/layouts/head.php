@@ -2,7 +2,12 @@
 $site_asset_url = site_asset_url('');
 ?>
 	<meta charset="UTF-8">
-	<title>Shop quần áo Ngọc Lan</title>
+	<title><?php
+		if (!empty($page_title)) {
+			echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') . ' · ';
+		}
+		echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8');
+	?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<script src="<?php echo public_url(); ?>js/jquery-3.1.1.js" type="text/javascript"></script>
@@ -11,7 +16,7 @@ $site_asset_url = site_asset_url('');
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link rel="stylesheet" type="text/css" href="<?php echo $site_asset_url; ?>css/typography-luxury.css?v=1">
 	<link rel="stylesheet" type="text/css" href="<?php echo $site_asset_url; ?>bootstrap/css/bootstrap.css">
-	<link rel="stylesheet" type="text/css" href="<?php echo $site_asset_url; ?>css/style.css?v=20260722c">
+	<link rel="stylesheet" type="text/css" href="<?php echo $site_asset_url; ?>css/style.css?v=20260724b">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 	<link rel="stylesheet" type="text/css" href="<?php echo $site_asset_url; ?>css/layout-chrome-2026.css?v=10">
 	<?php if (!empty($canonical_url)) { ?>

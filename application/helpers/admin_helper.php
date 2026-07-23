@@ -78,6 +78,30 @@
 			),
 			'inventory' => array(
 				'default' => 'Quản lý tồn kho',
+				'low_stock' => 'Hàng sắp hết',
+				'adjust' => 'Kiểm kê tồn kho',
+			),
+			'receipts' => array(
+				'default' => 'Phiếu nhập kho',
+				'create' => 'Tạo phiếu nhập',
+				'view' => 'Chi tiết phiếu nhập',
+			),
+			'stock-movements' => array(
+				'default' => 'Lịch sử biến động kho',
+			),
+			'suppliers' => array(
+				'default' => 'Nhà cung cấp',
+				'add' => 'Thêm nhà cung cấp',
+			),
+			'stock-receipts' => array(
+				'default' => 'Phiếu nhập kho',
+				'add' => 'Tạo phiếu nhập',
+				'edit' => 'Sửa phiếu nhập',
+				'view' => 'Chi tiết phiếu nhập',
+			),
+			'stock-inventory' => array(
+				'default' => 'Quản lý tồn kho',
+				'movements' => 'Lịch sử biến động kho',
 			),
 			'slider' => array(
 				'default' => 'Quản lý slider',
@@ -193,5 +217,81 @@
 		$CI->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 		$CI->output->set_header('Pragma: no-cache');
 		$CI->output->set_header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
+	}
+
+	if (!function_exists('admin_flash_success')) {
+		function admin_flash_success($message)
+		{
+			$CI =& get_instance();
+			$CI->session->unset_userdata('message_fail');
+			$CI->session->set_flashdata('message_success', $message);
+		}
+	}
+
+	if (!function_exists('admin_flash_fail')) {
+		function admin_flash_fail($message)
+		{
+			$CI =& get_instance();
+			$CI->session->unset_userdata('message_success');
+			$CI->session->set_flashdata('message_fail', $message);
+		}
+	}
+
+	if (!function_exists('user_registered_timestamp')) {
+		function user_registered_timestamp($user, $addresses = array())
+		{
+			$created = isset($user->created) ? $user->created : null;
+
+			if (!is_numeric($created) && is_string($created) && trim($created) !== '') {
+				$ts = strtotime($created);
+				if ($ts !== false && $ts >= 946684800) {
+					return $ts;
+				}
+			}
+
+			if (is_numeric($created)) {
+				$n = (int) $created;
+				if ($n >= 946684800) {
+					return $n;
+				}
+			}
+
+			if (!empty($addresses)) {
+				$min = null;
+				foreach ($addresses as $addr) {
+					if (!isset($addr->created)) {
+						continue;
+					}
+					$c = (int) $addr->created;
+					if ($c >= 946684800 && ($min === null || $c < $min)) {
+						$min = $c;
+					}
+				}
+				if ($min !== null) {
+					return $min;
+				}
+			}
+
+			return null;
+		}
+	}
+
+	if (!function_exists('format_user_registered')) {
+		function format_user_registered($user, $addresses = array())
+		{
+			$ts = user_registered_timestamp($user, $addresses);
+			if ($ts !== null) {
+				return mdate('%d/%m/%Y %H:%i', $ts);
+			}
+
+			if (isset($user->created) && is_numeric($user->created)) {
+				$n = (int) $user->created;
+				if ($n >= 2000 && $n <= 2100) {
+					return 'Năm ' . $n;
+				}
+			}
+
+			return '—';
+		}
 	}
 ?>

@@ -6,6 +6,7 @@ class Product extends MY_Frontend_Controller {
     {
         parent::__construct();
         $this->load->model('product_model');
+        $this->load->model('product_review_model');
         $this->load->model('catalog_model');
         
         $this->load->model('slider_model');
@@ -99,7 +100,10 @@ class Product extends MY_Frontend_Controller {
             $product_sizes = explode(',', $product->size);
         }
         $this->data['product_sizes'] = $product_sizes;
-        
+
+        $this->load->library('product_service');
+        $this->data['variant_stock_map'] = $this->product_service->get_variant_stock_map($id);
+
         $input = array();
         $input['where'] = array('catalog_id' => $product->catalog_id);
         $input['limit'] = array('4','0');
@@ -113,6 +117,44 @@ class Product extends MY_Frontend_Controller {
         $this->data['productview'] = $productview;
 
         $this->data['canonical_url'] = build_product_url($product);
+
+        $review_stats = array(
+            'rate_count' => (int) $product->rate_count,
+            'rate_total' => (int) $product->rate_total,
+        );
+        $review_breakdown = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0);
+        $product_reviews = array();
+        $user_already_rated = FALSE;
+        $user_review = FALSE;
+
+        if ($this->db->table_exists('product_review')) {
+            $product_reviews = $this->product_review_model->get_by_product($id, 50);
+            $review_breakdown = $this->product_review_model->get_star_breakdown($id);
+            $review_count = array_sum($review_breakdown);
+            if ($review_count > 0) {
+                $review_total = 0;
+                foreach ($review_breakdown as $star => $count) {
+                    $review_total += ((int) $star) * (int) $count;
+                }
+                $review_stats = array(
+                    'rate_count' => $review_count,
+                    'rate_total' => $review_total,
+                );
+                $product->rate_count = $review_count;
+                $product->rate_total = $review_total;
+            }
+
+            $user_login = $this->session->userdata('user');
+            $session_token = $this->_get_rating_session_token();
+            $user_id = ($user_login && isset($user_login->id)) ? (int) $user_login->id : 0;
+            $user_review = $this->product_review_model->get_user_review($id, $user_id, $session_token);
+            $user_already_rated = ($user_review !== FALSE);
+        }
+
+        $this->data['product_reviews'] = $product_reviews;
+        $this->data['review_breakdown'] = $review_breakdown;
+        $this->data['user_already_rated'] = $user_already_rated;
+        $this->data['user_review'] = $user_review;
         
         $this->render_frontend_sub('site/product/view');
     }
@@ -273,7 +315,7 @@ class Product extends MY_Frontend_Controller {
             'total_rows'         => $total,
             'per_page'           => 8,
             'uri_segment'        => $pagination_uri,
-            'reuse_query_string' => TRUE,
+            'reuse_query_string' => FALSE,
             'full_tag_open'   => '<div class="jm-modern-pagination"><ul>',
             'full_tag_close'  => '</ul></div>',
             'first_link'      => false,
@@ -289,6 +331,13 @@ class Product extends MY_Frontend_Controller {
             'prev_tag_open'  => '<li class="prev">',
             'prev_tag_close' => '</li>'
         );
+
+        $this->load->helper('seo_url');
+        $filter_query = catalog_build_filter_query();
+        if ($filter_query !== '') {
+            $config['suffix'] = $filter_query;
+        }
+
         $this->pagination->initialize($config);
 
         $sort = $this->input->get('sort');
@@ -446,7 +495,7 @@ class Product extends MY_Frontend_Controller {
         }
         $this->data['catalog_list'] = $catalog_list;
 
-        $this->data['page_title'] = 'Sản phẩm bán chạy - JM Dress Design';
+        $this->data['page_title'] = 'Sản phẩm bán chạy - ' . shop_name();
         $this->data['is_hot'] = true;
         $this->data['is_hot_list'] = true;
         $this->data['main_catalog_title'] = 'Sản phẩm bán chạy';
@@ -607,7 +656,7 @@ class Product extends MY_Frontend_Controller {
         $product_list = $this->db->get('product')->result();
         $this->data['product_list'] = $product_list;
         
-        $this->data['page_title'] = 'Sản phẩm mới nhất - JM Dress Design';
+        $this->data['page_title'] = 'Sản phẩm mới nhất - ' . shop_name();
         $this->render_frontend_sub('site/product/new');
     }
 
@@ -721,32 +770,130 @@ class Product extends MY_Frontend_Controller {
 
     public function raty()
     {
-        $id = $this->input->post('id');
+        $id = (int) $this->input->post('id');
+        $score = (int) round((float) $this->input->post('score'));
+        $result = array('complete' => FALSE);
+
+        if ($id <= 0 || $score < 1 || $score > 5) {
+            $result['msg'] = 'Dữ liệu đánh giá không hợp lệ';
+            echo json_encode($result);
+            exit();
+        }
+
         $product = $this->product_model->get_info($id);
         if (!$product) {
+            $result['msg'] = 'Sản phẩm không tồn tại';
+            echo json_encode($result);
             exit();
         }
-        $result = array();
-        $raty = $this->session->userdata('session_raty');
-        $raty = (!is_array($raty)) ? array() : $raty;
-        if (isset($raty[$id])) {
-            $result['msg'] = 'Bạn đã bình chọn cho sản phẩm này rồi';
-            $output = json_encode($result);
-            echo $output;
+
+        if (!$this->db->table_exists('product_review')) {
+            $result['msg'] = 'Chưa cấu hình bảng lưu đánh giá. Vui lòng chạy file SQL product_review.sql';
+            echo json_encode($result);
             exit();
         }
-        $raty[$id] = TRUE;
-        $this->session->set_userdata('session_raty',$raty);
-        $score = $this->input->post('score');
-        $data=array();
-        $data['rate_count'] = $product->rate_count + 1;
-        $data['rate_total'] = $product->rate_total + $score;
-        $this->product_model->update($id,$data);
+
+        $user_login = $this->session->userdata('user');
+        $user_id = ($user_login && isset($user_login->id)) ? (int) $user_login->id : 0;
+        $user_name = ($user_login && !empty($user_login->name)) ? $user_login->name : 'Khách hàng';
+        $session_token = $this->_get_rating_session_token();
+
+        $existing = $this->product_review_model->get_user_review($id, $user_id, $session_token);
+        if ($existing) {
+            if ((int) $existing->stars === $score) {
+                $result['complete'] = TRUE;
+                $result['msg'] = 'Bạn đang đánh giá ' . $score . ' sao';
+                echo json_encode($result);
+                exit();
+            }
+
+            $this->product_review_model->update($existing->id, array(
+                'stars' => $score,
+                'user_name' => $user_name,
+                'created' => time(),
+            ));
+            $this->product_review_model->sync_product_stats($id);
+
+            $result['complete'] = TRUE;
+            $result['updated'] = TRUE;
+            $result['msg'] = 'Đã cập nhật đánh giá thành ' . $score . ' sao';
+            echo json_encode($result);
+            exit();
+        }
+
+        $review_data = array(
+            'product_id' => $id,
+            'user_id' => $user_id,
+            'user_name' => $user_name,
+            'stars' => $score,
+            'session_token' => ($user_id > 0) ? '' : $session_token,
+            'created' => time(),
+        );
+
+        if (!$this->product_review_model->create($review_data)) {
+            $result['msg'] = 'Không lưu được đánh giá, vui lòng thử lại';
+            echo json_encode($result);
+            exit();
+        }
+
+        $this->product_review_model->sync_product_stats($id);
+
         $result['complete'] = TRUE;
-        $result['msg'] = 'Cảm ơn bạn đã đánh giá';
-        $output = json_encode($result);
-        echo $output;
+        $result['msg'] = 'Cảm ơn bạn đã đánh giá ' . $score . ' sao';
+        echo json_encode($result);
         exit();
+    }
+
+    public function raty_undo()
+    {
+        $id = (int) $this->input->post('id');
+        $result = array('complete' => FALSE);
+
+        if ($id <= 0) {
+            $result['msg'] = 'Dữ liệu không hợp lệ';
+            echo json_encode($result);
+            exit();
+        }
+
+        if (!$this->db->table_exists('product_review')) {
+            $result['msg'] = 'Chưa cấu hình bảng lưu đánh giá';
+            echo json_encode($result);
+            exit();
+        }
+
+        $product = $this->product_model->get_info($id);
+        if (!$product) {
+            $result['msg'] = 'Sản phẩm không tồn tại';
+            echo json_encode($result);
+            exit();
+        }
+
+        $user_login = $this->session->userdata('user');
+        $user_id = ($user_login && isset($user_login->id)) ? (int) $user_login->id : 0;
+        $session_token = $this->_get_rating_session_token();
+
+        if (!$this->product_review_model->delete_user_review($id, $user_id, $session_token)) {
+            $result['msg'] = 'Bạn chưa đánh giá sản phẩm này';
+            echo json_encode($result);
+            exit();
+        }
+
+        $this->product_review_model->sync_product_stats($id);
+
+        $result['complete'] = TRUE;
+        $result['msg'] = 'Đã hoàn tác đánh giá. Bạn có thể đánh giá lại.';
+        echo json_encode($result);
+        exit();
+    }
+
+    private function _get_rating_session_token()
+    {
+        $token = $this->session->userdata('rating_guest_token');
+        if (!$token) {
+            $token = bin2hex(random_bytes(16));
+            $this->session->set_userdata('rating_guest_token', $token);
+        }
+        return $token;
     }
 
     // WHERE dùng chung cho đếm và phân trang danh mục

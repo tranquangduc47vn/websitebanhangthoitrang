@@ -1,7 +1,7 @@
 <div class="container jm-content-page" style="max-width: 1200px; margin: 0 auto; padding: 40px 15px; background-color: #fbfbfb;">
     
     <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 40px; text-transform: uppercase; text-align: center; letter-spacing: 1px; color: #222;">
-        Hợp tác kinh doanh - Thời trang Ngọc Lan
+        Hợp tác kinh doanh - <?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?>
     </h1>
 
     <div class="hoptac-list">

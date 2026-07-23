@@ -26,6 +26,28 @@ class User extends MY_Admin_Controller {
 
 		$this->render_admin('admin/users/index');
 	}
+
+	public function view()
+	{
+		$id = (int) $this->uri->segment(4);
+		$user = $this->user_model->get_info($id);
+		if (!$user) {
+			$this->session->set_flashdata('message_fail', 'Khách hàng không tồn tại');
+			redirect(admin_url('user'));
+		}
+
+		$this->load->model('user_address_model');
+		$this->load->helper('loyalty');
+
+		$addresses = $this->user_address_model->list_for_user($id);
+		$order_count = $this->transaction_model->get_total(array('where' => array('user_id' => $id)));
+
+		$this->data['user'] = $user;
+		$this->data['addresses'] = $addresses;
+		$this->data['order_count'] = $order_count;
+		$this->render_admin('admin/users/view');
+	}
+
 	public function order()
 	{
 		$message_success = $this->session->flashdata('message_success');

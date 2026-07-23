@@ -491,6 +491,18 @@ a:hover { text-decoration: none; }
 .jm-auth-footer-link a:hover {
     color: #555 !important;
 }
+.jm-auth-forgot {
+    margin: -4px 0 12px !important;
+    text-align: right !important;
+    font-size: 12px !important;
+}
+.jm-auth-forgot a {
+    color: #666 !important;
+    text-decoration: underline !important;
+}
+.jm-auth-forgot a:hover {
+    color: #111 !important;
+}
 
 /* --- THANH CAM KẾT TIỆN ÍCH TRÀN LỀ TUYỆT ĐỐI --- */
 .jm-commitment-bar {
@@ -681,32 +693,44 @@ html, body {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    --home-slider-height: clamp(370px, calc(38vw + 50px), 570px);
 }
 
 #carousel-example-generic {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: var(--home-slider-height);
+    overflow: hidden;
 }
 
 .carousel-inner {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: 100%;
 }
 
 .carousel-inner .item {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: 100%;
+}
+
+.carousel-inner .item > a {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .carousel-inner .item img {
     display: block !important;
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
     max-height: none !important;
-    object-fit: unset !important;
+    object-fit: cover !important;
+    object-position: center center;
     margin: 0 !important;
     padding: 0 !important;
 }
@@ -834,6 +858,10 @@ html, body {
 }
 
 @media (max-width:768px){
+    .slider-wrapper {
+        --home-slider-height: clamp(290px, calc(56vw + 50px), 410px);
+    }
+
     .slider-search-box{
         width: 94%;
     }
@@ -1357,7 +1385,12 @@ html, body {
 }
 
 .jm-badge-discount {
-    position: absolute; top: 10px; left: 10px; background-color: #b81c22; color: #fff; padding: 3px 8px; font-size: 11px; font-weight: bold; border-radius: 2px; z-index: 5;
+    position: absolute; top: 10px; left: 10px; z-index: 5;
+    background: linear-gradient(135deg, #ff4242 0%, #e01010 55%, #c80000 100%);
+    color: #fff; padding: 6px 12px; font-size: 13px; font-weight: 800;
+    border-radius: 6px; letter-spacing: 0.03em; line-height: 1.15;
+    box-shadow: 0 4px 14px rgba(224, 16, 16, 0.55), 0 0 0 2px rgba(255, 255, 255, 0.92);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 .jm-product-info { padding: 15px 0 5px 0; }
 

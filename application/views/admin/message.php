@@ -7,14 +7,14 @@ $msg_info = $this->session->flashdata('message');
 	<?php if ($msg_success) { ?>
 		<div class="alert alert-success alert-dismissible fade show" role="alert" data-admin-auto-dismiss="5000">
 			<i class="fa-solid fa-circle-check me-2"></i>
-			<?php echo $msg_success; ?>
+			<strong>Thành công!</strong> <?php echo $msg_success; ?>
 			<button type="button" class="btn-close" data-bs-dismiss="alert" data-admin-dismiss="alert" aria-label="Đóng"></button>
 		</div>
 	<?php } ?>
 	<?php if ($msg_fail) { ?>
 		<div class="alert alert-danger alert-dismissible fade show" role="alert" data-admin-auto-dismiss="5000">
 			<i class="fa-solid fa-triangle-exclamation me-2"></i>
-			<?php echo $msg_fail; ?>
+			<strong>Lỗi!</strong> <?php echo $msg_fail; ?>
 			<button type="button" class="btn-close" data-bs-dismiss="alert" data-admin-dismiss="alert" aria-label="Đóng"></button>
 		</div>
 	<?php } ?>

@@ -1,12 +1,13 @@
 <?php
 $cart_asset = site_asset_url('');
 ?>
-<link rel="stylesheet" href="<?php echo $cart_asset; ?>css/cart-luxury.css?v=4">
+<link rel="stylesheet" href="<?php echo $cart_asset; ?>css/cart-luxury.css?v=6">
+<link rel="stylesheet" href="<?php echo $cart_asset; ?>css/stock-notice-modal.css?v=1">
 
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 clearpadding jm-cart-lux">
 	<div class="jm-cart-lux__inner">
 
-		<?php if (isset($message) && !empty($message)) { ?>
+		<?php if (isset($message) && !empty($message) && empty($stock_notice)) { ?>
 			<div class="jm-cart-flash" role="alert"><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></div>
 		<?php } ?>
 
@@ -38,7 +39,7 @@ $cart_asset = site_asset_url('');
 								$img = base_url('upload/product/' . (isset($items['options']['image_link']) ? $items['options']['image_link'] : 'default.jpg'));
 								$product_url = !empty($items['id']) ? build_product_url((int) $items['id']) : '#';
 						?>
-							<tr class="jm-cart-row">
+							<tr class="jm-cart-row" data-rowid="<?php echo htmlspecialchars($items['rowid'], ENT_QUOTES, 'UTF-8'); ?>">
 								<td class="jm-cart-col--idx" data-label="#"><?php echo $i; ?></td>
 								<td class="jm-cart-col--product" data-label="Sản phẩm">
 									<div class="jm-cart-product">
@@ -49,14 +50,54 @@ $cart_asset = site_asset_url('');
 											<p class="jm-cart-product__name">
 												<a href="<?php echo $product_url; ?>"><?php echo product_display_name($items['name']); ?></a>
 											</p>
-											<?php if (!empty($items['options']['size']) || !empty($items['options']['color'])) { ?>
-												<p class="jm-cart-product__opts">
-													<?php if (!empty($items['options']['size'])) { ?>
-														<span>Size <?php echo htmlspecialchars($items['options']['size'], ENT_QUOTES, 'UTF-8'); ?></span>
-													<?php } ?>
-													<?php if (!empty($items['options']['color'])) { ?>
-														<span>Màu <?php echo htmlspecialchars($items['options']['color'], ENT_QUOTES, 'UTF-8'); ?></span>
-													<?php } ?>
+											<?php
+											$current_size = isset($items['options']['size']) ? $items['options']['size'] : '';
+											$current_color = isset($items['options']['color']) ? $items['options']['color'] : '';
+											$size_options = isset($items['variants']['sizes']) ? $items['variants']['sizes'] : array($current_size);
+											$color_options = isset($items['variants']['colors']) ? $items['variants']['colors'] : array($current_color);
+											$can_edit_size = count($size_options) > 1;
+											$can_edit_color = count($color_options) > 1;
+											?>
+											<?php if ($can_edit_size || $can_edit_color) { ?>
+											<form method="post" action="<?php echo site_url('gio-hang/cap-nhat-thuoc-tinh'); ?>" class="jm-cart-opts-form">
+												<input type="hidden" name="rowid" value="<?php echo htmlspecialchars($items['rowid'], ENT_QUOTES, 'UTF-8'); ?>">
+												<div class="jm-cart-product__opts">
+													<label class="jm-cart-opt">
+														<span class="jm-cart-opt__label">Size</span>
+														<?php if ($can_edit_size) { ?>
+														<select name="size" class="jm-cart-opt__select">
+															<?php foreach ($size_options as $size_option) { ?>
+																<option value="<?php echo htmlspecialchars($size_option, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($size_option === $current_size) ? 'selected' : ''; ?>>
+																	<?php echo htmlspecialchars($size_option, ENT_QUOTES, 'UTF-8'); ?>
+																</option>
+															<?php } ?>
+														</select>
+														<?php } else { ?>
+														<input type="hidden" name="size" value="<?php echo htmlspecialchars($current_size, ENT_QUOTES, 'UTF-8'); ?>">
+														<span class="jm-cart-opt__value"><?php echo htmlspecialchars($current_size, ENT_QUOTES, 'UTF-8'); ?></span>
+														<?php } ?>
+													</label>
+													<label class="jm-cart-opt">
+														<span class="jm-cart-opt__label">Màu</span>
+														<?php if ($can_edit_color) { ?>
+														<select name="color" class="jm-cart-opt__select">
+															<?php foreach ($color_options as $color_option) { ?>
+																<option value="<?php echo htmlspecialchars($color_option, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($color_option === $current_color) ? 'selected' : ''; ?>>
+																	<?php echo htmlspecialchars($color_option, ENT_QUOTES, 'UTF-8'); ?>
+																</option>
+															<?php } ?>
+														</select>
+														<?php } else { ?>
+														<input type="hidden" name="color" value="<?php echo htmlspecialchars($current_color, ENT_QUOTES, 'UTF-8'); ?>">
+														<span class="jm-cart-opt__value"><?php echo htmlspecialchars($current_color, ENT_QUOTES, 'UTF-8'); ?></span>
+														<?php } ?>
+													</label>
+												</div>
+											</form>
+											<?php } else { ?>
+												<p class="jm-cart-product__opts jm-cart-product__opts--static">
+													<span>Size <?php echo htmlspecialchars($current_size, ENT_QUOTES, 'UTF-8'); ?></span>
+													<span>Màu <?php echo htmlspecialchars($current_color, ENT_QUOTES, 'UTF-8'); ?></span>
 												</p>
 											<?php } ?>
 										</div>
@@ -64,9 +105,9 @@ $cart_asset = site_asset_url('');
 								</td>
 								<td class="jm-cart-col--qty" data-label="Số lượng">
 									<div class="jm-cart-qty">
-										<a class="jm-cart-qty__btn" href="<?php echo site_url('gio-hang/update/' . $items['rowid'] . '/sub'); ?>" aria-label="Giảm số lượng">−</a>
+										<button type="button" class="jm-cart-qty__btn" data-action="sub" aria-label="Giảm số lượng">−</button>
 										<span class="jm-cart-qty__val"><?php echo (int) $items['qty']; ?></span>
-										<a class="jm-cart-qty__btn" href="<?php echo site_url('gio-hang/update/' . $items['rowid'] . '/sum'); ?>" aria-label="Tăng số lượng">+</a>
+										<button type="button" class="jm-cart-qty__btn" data-action="sum" aria-label="Tăng số lượng">+</button>
 									</div>
 								</td>
 								<td class="jm-cart-col--sub" data-label="Thành tiền">
@@ -109,3 +150,18 @@ $cart_asset = site_asset_url('');
 		<?php } ?>
 	</div><!-- .jm-cart-lux__inner -->
 </div>
+
+<?php $this->load->view('site/partials/stock_notice_modal'); ?>
+
+<script>
+window.JM_CART_AJAX = {
+	optionsUrl: <?php echo json_encode(site_url('gio-hang/cap-nhat-thuoc-tinh')); ?>,
+	updateUrl: <?php echo json_encode(site_url('gio-hang/update/')); ?>,
+	loginUrl: <?php echo json_encode(base_url('dang-nhap')); ?>
+};
+<?php if (!empty($stock_notice) && is_array($stock_notice)) { ?>
+window.JM_STOCK_NOTICE = <?php echo json_encode($stock_notice, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+<?php } ?>
+</script>
+<script src="<?php echo $cart_asset; ?>js/stock-notice-modal.js?v=1"></script>
+<script src="<?php echo $cart_asset; ?>js/cart-luxury.js?v=2"></script>

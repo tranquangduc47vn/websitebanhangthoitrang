@@ -8,7 +8,7 @@ $this->load->view('admin/partials/form_open');
 
 	<div class="mb-3">
 		<label for="name" class="form-label">Tên Showroom / Cửa hàng <span class="text-danger">*</span></label>
-		<input type="text" name="name" id="name" required class="form-control" value="" placeholder="Ví dụ: JM 140 Cầu Giấy">
+		<input type="text" name="name" id="name" required class="form-control" value="" placeholder="Ví dụ: <?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?> 140 Cầu Giấy">
 	</div>
 
 	<div class="row">

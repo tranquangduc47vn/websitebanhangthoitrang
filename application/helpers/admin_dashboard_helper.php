@@ -119,6 +119,8 @@ if (!function_exists('admin_dashboard_get_data')) {
 		$low_stock_threshold = 10;
 
 		$kpis = admin_dashboard_build_kpis($range, $low_stock_threshold);
+		$cost_kpis = admin_dashboard_build_cost_kpis($range);
+		$kpi_groups = admin_dashboard_assemble_kpi_groups($kpis, $cost_kpis);
 		$charts = admin_dashboard_build_charts($range);
 		$top_products = admin_dashboard_top_products($range, 8);
 		$pending_orders = admin_dashboard_pending_orders(12);
@@ -126,11 +128,14 @@ if (!function_exists('admin_dashboard_get_data')) {
 		$top_categories = admin_dashboard_top_categories($range, 6);
 		$low_stock = admin_dashboard_low_stock($low_stock_threshold, 8);
 		$notifications = admin_dashboard_notifications($range, $low_stock_threshold);
+		$recent_reviews = admin_dashboard_recent_reviews($range, 15);
 
 		return array(
 			'range' => $range,
 			'low_stock_threshold' => $low_stock_threshold,
 			'kpis' => $kpis,
+			'cost_kpis' => $cost_kpis,
+			'kpi_groups' => $kpi_groups,
 			'charts' => $charts,
 			'top_products' => $top_products,
 			'pending_orders' => $pending_orders,
@@ -138,6 +143,7 @@ if (!function_exists('admin_dashboard_get_data')) {
 			'top_categories' => $top_categories,
 			'low_stock' => $low_stock,
 			'notifications' => $notifications,
+			'recent_reviews' => $recent_reviews,
 			'filter_query' => admin_dashboard_filter_query($range, $from, $to),
 		);
 	}
@@ -213,7 +219,203 @@ if (!function_exists('admin_dashboard_build_kpis')) {
 			array('key' => 'completed', 'label' => 'Đơn hoàn thành', 'value' => $completed, 'delta' => admin_dashboard_pct_change($completed, $completed_prev), 'format' => 'int', 'hint' => 'Trong ' . $range['label']),
 			array('key' => 'cancelled', 'label' => 'Đơn đã hủy', 'value' => $cancelled, 'delta' => admin_dashboard_pct_change($cancelled, $cancelled_prev), 'format' => 'int', 'hint' => 'Trong ' . $range['label']),
 			array('key' => 'new_users', 'label' => 'Khách hàng mới', 'value' => $new_users, 'delta' => admin_dashboard_pct_change($new_users, $new_users_prev), 'format' => 'int', 'hint' => 'Trong ' . $range['label']),
-			array('key' => 'low_stock', 'label' => 'Sản phẩm sắp hết hàng', 'value' => $low_stock, 'delta' => 0, 'format' => 'int', 'hint' => 'Tồn ≤ ' . (int) $low_stock_threshold),
+			array('key' => 'low_stock', 'label' => 'Sản phẩm sắp hết', 'value' => $low_stock, 'delta' => 0, 'format' => 'int', 'hint' => 'Tồn ≤ ' . (int) $low_stock_threshold, 'static_delta' => true),
+		);
+	}
+}
+
+if (!function_exists('admin_dashboard_assemble_kpi_groups')) {
+	function admin_dashboard_assemble_kpi_groups(array $kpis, array $cost_kpis)
+	{
+		$indexed = array();
+		foreach ($kpis as $kpi) {
+			$indexed[$kpi['key']] = $kpi;
+		}
+		foreach ($cost_kpis as $kpi) {
+			$indexed[$kpi['key']] = $kpi;
+		}
+
+		$groups = array(
+			array(
+				'id' => 'sales',
+				'title' => 'Bán hàng',
+				'icon' => 'fa-solid fa-chart-line',
+				'keys' => array('orders_today', 'revenue_today', 'completed', 'cancelled'),
+			),
+			array(
+				'id' => 'ops',
+				'title' => 'Vận hành',
+				'icon' => 'fa-solid fa-gears',
+				'keys' => array('pending', 'shipping', 'new_users', 'low_stock'),
+			),
+			array(
+				'id' => 'finance',
+				'title' => 'Kho & tài chính',
+				'icon' => 'fa-solid fa-warehouse',
+				'keys' => array('stock_import', 'inventory_value', 'cogs', 'gross_profit'),
+			),
+		);
+
+		$result = array();
+		foreach ($groups as $group) {
+			$items = array();
+			foreach ($group['keys'] as $key) {
+				if (isset($indexed[$key])) {
+					$items[] = $indexed[$key];
+				}
+			}
+			$result[] = array(
+				'id' => $group['id'],
+				'title' => $group['title'],
+				'icon' => $group['icon'],
+				'items' => $items,
+			);
+		}
+
+		return $result;
+	}
+}
+
+if (!function_exists('admin_dashboard_sum_receipt_import')) {
+	function admin_dashboard_sum_receipt_import($start, $end)
+	{
+		$CI =& get_instance();
+		if (!$CI->db->table_exists('stock_receipts')) {
+			return 0;
+		}
+
+		$row = $CI->db->query(
+			'SELECT COALESCE(SUM(total_amount), 0) AS total
+			FROM stock_receipts
+			WHERE status = ?
+			AND IF(confirmed_at > 0, confirmed_at, created) >= ?
+			AND IF(confirmed_at > 0, confirmed_at, created) <= ?',
+			array('confirmed', (int) $start, (int) $end)
+		)->row();
+
+		return !empty($row->total) ? (float) $row->total : 0;
+	}
+}
+
+if (!function_exists('admin_dashboard_sum_cogs')) {
+	function admin_dashboard_sum_cogs($start, $end)
+	{
+		$CI =& get_instance();
+		if (!$CI->db->table_exists('order') || !$CI->db->table_exists('transaction')) {
+			return 0;
+		}
+
+		$has_line_cost = $CI->db->field_exists('cost_price', 'order');
+		$has_variants = $CI->db->table_exists('product_variants');
+
+		if ($has_line_cost) {
+			$cost_expr = 'o.qty * COALESCE(o.cost_price, 0)';
+		} elseif ($has_variants) {
+			$cost_expr = 'o.qty * COALESCE(NULLIF(pv.cost_price, 0), 0)';
+		} else {
+			return 0;
+		}
+
+		$join = $has_variants && !$has_line_cost
+			? 'LEFT JOIN product_variants pv ON pv.id = o.variant_id'
+			: '';
+
+		$row = $CI->db->query(
+			"SELECT COALESCE(SUM({$cost_expr}), 0) AS total
+			FROM `order` o
+			INNER JOIN `transaction` t ON t.id = o.transaction_id
+			{$join}
+			WHERE t.status = 3
+			AND t.created >= ?
+			AND t.created <= ?",
+			array((int) $start, (int) $end)
+		)->row();
+
+		return !empty($row->total) ? (float) $row->total : 0;
+	}
+}
+
+if (!function_exists('admin_dashboard_inventory_value')) {
+	function admin_dashboard_inventory_value()
+	{
+		$CI =& get_instance();
+		if ($CI->db->table_exists('product_variants')) {
+			$where = $CI->db->field_exists('status', 'product_variants') ? 'WHERE status = 1' : '';
+			$row = $CI->db->query(
+				"SELECT COALESCE(SUM(stock * cost_price), 0) AS total FROM product_variants {$where}"
+			)->row();
+			return !empty($row->total) ? (float) $row->total : 0;
+		}
+
+		return 0;
+	}
+}
+
+if (!function_exists('admin_dashboard_build_cost_kpis')) {
+	function admin_dashboard_build_cost_kpis($range)
+	{
+		$s = $range['start'];
+		$e = $range['end'];
+		$ps = $range['prev_start'];
+		$pe = $range['prev_end'];
+		$period_hint = 'Trong ' . $range['label'];
+
+		$receipt_import = admin_dashboard_sum_receipt_import($s, $e);
+		$receipt_import_prev = admin_dashboard_sum_receipt_import($ps, $pe);
+
+		$cogs = admin_dashboard_sum_cogs($s, $e);
+		$cogs_prev = admin_dashboard_sum_cogs($ps, $pe);
+
+		$revenue = admin_dashboard_sum_revenue($s, $e);
+		$revenue_prev = admin_dashboard_sum_revenue($ps, $pe);
+
+		$gross_profit = $revenue - $cogs;
+		$gross_profit_prev = $revenue_prev - $cogs_prev;
+
+		$inventory_value = admin_dashboard_inventory_value();
+
+		return array(
+			array(
+				'key' => 'stock_import',
+				'label' => 'Giá trị nhập kho',
+				'value' => $receipt_import,
+				'delta' => admin_dashboard_pct_change($receipt_import, $receipt_import_prev),
+				'format' => 'money',
+				'tone' => 'warning',
+				'hint' => $period_hint,
+				'caption' => 'Tổng phiếu nhập đã xác nhận trong kỳ',
+			),
+			array(
+				'key' => 'inventory_value',
+				'label' => 'Giá trị tồn kho',
+				'value' => $inventory_value,
+				'delta' => 0,
+				'format' => 'money',
+				'tone' => 'default',
+				'hint' => 'Tồn hiện tại',
+				'caption' => 'Tồn × giá vốn biến thể hiện tại',
+				'static_delta' => true,
+			),
+			array(
+				'key' => 'cogs',
+				'label' => 'Giá vốn đã bán (COGS)',
+				'value' => $cogs,
+				'delta' => admin_dashboard_pct_change($cogs, $cogs_prev),
+				'format' => 'money',
+				'tone' => 'default',
+				'hint' => $period_hint,
+				'caption' => 'SL × giá vốn trên đơn hoàn thành',
+			),
+			array(
+				'key' => 'gross_profit',
+				'label' => 'Lợi nhuận gộp',
+				'value' => $gross_profit,
+				'delta' => admin_dashboard_pct_change($gross_profit, $gross_profit_prev),
+				'format' => 'money',
+				'tone' => 'success',
+				'hint' => $period_hint,
+				'caption' => 'Doanh thu − COGS trong kỳ',
+			),
 		);
 	}
 }
@@ -422,6 +624,22 @@ if (!function_exists('admin_dashboard_low_stock')) {
 	}
 }
 
+if (!function_exists('admin_dashboard_recent_reviews')) {
+	function admin_dashboard_recent_reviews($range, $limit = 15)
+	{
+		$CI =& get_instance();
+		if (!$CI->db->table_exists('product_review')) {
+			return array();
+		}
+
+		$CI->load->model('product_review_model');
+		$start = isset($range['start']) ? (int) $range['start'] : 0;
+		$end = isset($range['end']) ? (int) $range['end'] : 0;
+
+		return $CI->product_review_model->get_recent_with_product((int) $limit, $start, $end);
+	}
+}
+
 if (!function_exists('admin_dashboard_notifications')) {
 	function admin_dashboard_notifications($range, $low_stock_threshold)
 	{
@@ -445,14 +663,20 @@ if (!function_exists('admin_dashboard_notifications')) {
 			->get()
 			->result();
 
-		$review_products = $CI->db
-			->select('id, name, rate_count, rate_total')
-			->from('product')
-			->where('rate_count >', 0)
-			->order_by('rate_count', 'DESC')
-			->limit(5)
-			->get()
-			->result();
+		$review_products = array();
+		if ($CI->db->table_exists('product_review')) {
+			$CI->load->model('product_review_model');
+			$review_products = $CI->product_review_model->get_recent_with_product(5, (int) $range['start'], (int) $range['end']);
+		} else {
+			$review_products = $CI->db
+				->select('id, name, rate_count, rate_total')
+				->from('product')
+				->where('rate_count >', 0)
+				->order_by('rate_count', 'DESC')
+				->limit(5)
+				->get()
+				->result();
+		}
 
 		$new_users = $CI->db
 			->select('id, name, email, created')
@@ -555,7 +779,10 @@ if (!function_exists('admin_dashboard_notification_groups')) {
 		$show_customers = !empty($perm['products']) || !empty($perm['users']);
 		if ($show_customers) {
 			$review_pending = 0;
-			if (!empty($perm['products'])) {
+			if (!empty($perm['products']) && $CI->db->table_exists('product_review')) {
+				$CI->load->model('product_review_model');
+				$review_pending = $CI->product_review_model->count_in_range((int) $range['start'], (int) $range['end']);
+			} elseif (!empty($perm['products'])) {
 				$review_pending = (int) $CI->db->where('rate_count >', 0)->count_all_results('product');
 			}
 			$new_contacts = 0;
@@ -571,8 +798,8 @@ if (!function_exists('admin_dashboard_notification_groups')) {
 			if (!empty($perm['products'])) {
 				$lines[] = admin_dashboard_notify_summary_line(
 					$review_pending,
-					'Không có đánh giá mới cần duyệt.',
-					'Có %s sản phẩm có đánh giá cần duyệt.'
+					'Chưa có đánh giá mới trong kỳ.',
+					'Có %s đánh giá mới trong ' . $range['label'] . '.'
 				);
 			}
 			if (!empty($perm['users'])) {
@@ -587,7 +814,7 @@ if (!function_exists('admin_dashboard_notification_groups')) {
 				'Không có yêu cầu đổi trả mới.',
 				'Có %s yêu cầu đổi trả cần xử lý.'
 			);
-			$action_url = !empty($perm['users']) ? admin_url('users') : admin_url('products');
+			$action_url = !empty($perm['products']) ? admin_url('home#admDashReviews') : admin_url('users');
 			$groups[] = array(
 				'id' => 'customers',
 				'priority' => 40,
@@ -596,8 +823,36 @@ if (!function_exists('admin_dashboard_notification_groups')) {
 				'tone' => $badge > 0 ? 'info' : 'success',
 				'badge' => $badge,
 				'lines' => $lines,
-				'action_label' => ($review_pending + $returns) > 0 ? 'Xử lý' : 'Xem chi tiết',
+				'action_label' => ($review_pending + $returns) > 0 ? 'Xem đánh giá' : 'Xem chi tiết',
 				'action_url' => $action_url,
+			);
+		}
+
+		if (!empty($perm['products']) && $CI->db->table_exists('product_review')) {
+			$CI->load->model('product_review_model');
+			$period_review_count = $CI->product_review_model->count_in_range((int) $range['start'], (int) $range['end']);
+			$latest_reviews = $CI->product_review_model->get_recent_with_product(3, (int) $range['start'], (int) $range['end']);
+			$review_notify_lines = array();
+			if (empty($latest_reviews)) {
+				$review_notify_lines[] = 'Chưa có khách hàng đánh giá trong ' . $range['label'] . '.';
+			} else {
+				foreach ($latest_reviews as $review_row) {
+					$product_name = !empty($review_row->product_name) ? $review_row->product_name : ('SP #' . (int) $review_row->product_id);
+					$review_notify_lines[] = $review_row->user_name
+						. ' — ' . (int) $review_row->stars . ' sao — '
+						. $product_name;
+				}
+			}
+			$groups[] = array(
+				'id' => 'product_reviews',
+				'priority' => 35,
+				'title' => 'Đánh giá sản phẩm',
+				'icon' => 'fa-solid fa-star',
+				'tone' => $period_review_count > 0 ? 'warning' : 'success',
+				'badge' => $period_review_count,
+				'lines' => $review_notify_lines,
+				'action_label' => $period_review_count > 0 ? 'Xem danh sách' : 'Xem chi tiết',
+				'action_url' => admin_url('home#admDashReviews'),
 			);
 		}
 
@@ -738,9 +993,9 @@ if (!function_exists('admin_dashboard_notify_backup_line')) {
 if (!function_exists('admin_dashboard_format_kpi')) {
 	function admin_dashboard_format_kpi($value, $format)
 	{
-		if ($format === 'money') {
-			return number_format((int) $value, 0, ',', '.') . ' ₫';
-		}
+	if ($format === 'money') {
+		return number_format((float) $value, 0, ',', '.') . ' ₫';
+	}
 		return number_format((int) $value, 0, ',', '.');
 	}
 }
@@ -808,6 +1063,10 @@ if (!function_exists('admin_dashboard_kpi_allowed')) {
 			'cancelled' => 'orders',
 			'new_users' => 'users',
 			'low_stock' => 'inventory',
+			'stock_import' => 'inventory',
+			'cogs' => 'revenue',
+			'gross_profit' => 'revenue',
+			'inventory_value' => 'inventory',
 		);
 		$section = isset($map[$key]) ? $map[$key] : 'orders';
 		return admin_dashboard_section_allowed($section, $login);

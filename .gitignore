@@ -5,6 +5,7 @@ Thumbs.db
 # Secrets — KHÔNG commit mật khẩu DB / API key
 application/config/database.php
 application/config/ai.php
+application/config/mail.local.php
 .env
 .env.*
 

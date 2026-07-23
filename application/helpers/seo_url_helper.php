@@ -259,3 +259,39 @@ if (!function_exists('seo_redirect')) {
 		exit;
 	}
 }
+
+if (!function_exists('catalog_build_filter_query')) {
+	function catalog_build_filter_query()
+	{
+		$CI =& get_instance();
+		$parts = array();
+
+		$sort = $CI->input->get('sort');
+		if ($sort !== null && $sort !== '' && $sort !== false) {
+			$parts[] = 'sort=' . rawurlencode($sort);
+		}
+
+		$price = $CI->input->get('price_range');
+		if ($price !== null && $price !== '' && $price !== false) {
+			$parts[] = 'price_range=' . rawurlencode($price);
+		}
+
+		foreach (array('size', 'color', 'category') as $key) {
+			$values = $CI->input->get($key);
+			if ($values === null || $values === false || $values === '') {
+				continue;
+			}
+			if (!is_array($values)) {
+				$values = array($values);
+			}
+			foreach ($values as $value) {
+				$value = trim((string) $value);
+				if ($value !== '') {
+					$parts[] = rawurlencode($key . '[]') . '=' . rawurlencode($value);
+				}
+			}
+		}
+
+		return empty($parts) ? '' : '?' . implode('&', $parts);
+	}
+}

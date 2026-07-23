@@ -9,7 +9,7 @@ $asset = site_asset_url('');
 		<section class="jm-account-panel">
 			<div class="jm-account-panel__head">
 				<h1 class="jm-account-panel__title">Chính sách tích điểm</h1>
-				<p class="jm-account-panel__sub">JM Dress Design · Khách mua nhiều được ưu đãi hơn</p>
+				<p class="jm-account-panel__sub"><?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?> · Khách mua nhiều được ưu đãi hơn</p>
 			</div>
 			<div class="jm-account-panel__body jm-loyalty-policy">
 				<h2 class="jm-loyalty-policy__h">Cách tích điểm</h2>

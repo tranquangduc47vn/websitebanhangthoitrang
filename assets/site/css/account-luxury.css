@@ -112,6 +112,14 @@
 	border-bottom: 1px solid #f0f0f0;
 }
 
+.jm-account-profile__row {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	max-width: 100%;
+}
+
 .jm-account-profile__label {
 	display: block;
 	font-size: 10px;
@@ -126,6 +134,92 @@
 	font-size: 14px;
 	color: #222;
 	word-break: break-word;
+}
+
+.jm-account-profile__row--address {
+	align-items: flex-start;
+	max-width: 100%;
+}
+
+.jm-account-profile__value--address {
+	font-size: 12px;
+	line-height: 1.45;
+	text-align: left;
+	max-width: 200px;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.jm-account-edit-btn {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: #999;
+	cursor: pointer;
+	transition: color 0.15s ease, background 0.15s ease;
+}
+
+.jm-account-edit-btn:hover {
+	color: #111;
+	background: #f0f0f0;
+}
+
+.jm-account-edit-btn .fa-pen {
+	font-size: 12px;
+}
+
+.jm-account-profile-edit {
+	margin-top: 10px;
+	max-width: 280px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.jm-account-profile-edit__input {
+	width: 100%;
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 14px;
+	box-sizing: border-box;
+	margin-bottom: 8px;
+}
+
+.jm-account-profile-edit__actions {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.jm-account-panel--highlight {
+	box-shadow: 0 0 0 2px rgba(197, 165, 114, 0.45);
+}
+
+.jm-account-profile-form {
+	max-width: 420px;
+	margin: 0 auto;
+}
+
+.jm-account-input--readonly {
+	background: #f7f7f7;
+	color: #666;
+	cursor: not-allowed;
+}
+
+.jm-account-phone-label {
+	font-size: 12px;
+	color: #888;
 }
 
 .jm-account-addresses {
@@ -384,6 +478,76 @@
 
 #modalHuyDonHang .modal-header {
 	background: #111 !important;
+}
+
+.jm-phone-modal-dialog {
+	max-width: 480px;
+	margin: 30px auto;
+}
+
+.jm-phone-modal {
+	border: none;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.jm-phone-modal__head {
+	text-align: center;
+	border-bottom: 1px solid #eee;
+	padding: 1.25rem 1.5rem 1rem;
+	background: #fff;
+}
+
+.jm-phone-modal__head .close {
+	position: absolute;
+	right: 14px;
+	top: 12px;
+	font-size: 22px;
+	opacity: 0.5;
+}
+
+.jm-phone-modal__head .modal-title {
+	font-family: var(--wf-display);
+	font-size: 1.15rem;
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #111;
+	margin: 0;
+}
+
+.jm-phone-modal__sub {
+	margin: 0.45rem 0 0;
+	font-size: 12px;
+	color: #888;
+}
+
+.jm-phone-modal__body {
+	padding: 1.25rem 1.25rem 1.5rem;
+	max-height: 70vh;
+	overflow-y: auto;
+}
+
+.jm-phone-modal__list {
+	max-width: none;
+	margin: 0 0 1rem;
+}
+
+.jm-phone-modal__add {
+	margin-top: 0;
+	padding-top: 1rem;
+	border-top: 1px solid #eee;
+	max-width: none;
+}
+
+.jm-phone-modal__submit {
+	text-align: center;
+	margin-top: 0.75rem;
+}
+
+.jm-phone-modal .jm-account-address-actions form {
+	display: inline;
 }
 
 /* Tích điểm & voucher trên tài khoản */

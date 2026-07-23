@@ -1,0 +1,66 @@
+.receipt-picker-card .ts-wrapper.form-select-sm,
+.receipt-picker-card .ts-control {
+	min-height: calc(1.5em + 0.5rem + 2px);
+	font-size: 0.875rem;
+}
+
+.receipt-picker-card .ts-wrapper {
+	width: 100%;
+}
+
+.receipt-filter-bar .form-label {
+	color: var(--bs-secondary-color);
+}
+
+.recent-variants-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.recent-variant-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.25rem 0.55rem;
+	border: 1px solid var(--bs-border-color);
+	border-radius: 999px;
+	background: var(--bs-body-bg);
+	font-size: 0.8125rem;
+}
+
+.recent-variant-chip .chip-meta {
+	color: var(--bs-secondary-color);
+}
+
+.recent-variant-chip .btn {
+	padding: 0.1rem 0.45rem;
+	line-height: 1.2;
+}
+
+#variant-picker .picker-qty,
+#variant-picker .picker-cost {
+	max-width: 100%;
+}
+
+.stock-badge-out {
+	font-weight: 600;
+}
+
+.variant-picker-meta {
+	min-height: 1.75rem;
+}
+
+#variant-picker .picker-subtotal,
+#receipt-lines .line-subtotal {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+#receipt-lines tbody tr.receipt-line td {
+	vertical-align: middle;
+}
+
+body.admin-dark .recent-variant-chip {
+	background: rgba(255, 255, 255, 0.03);
+}

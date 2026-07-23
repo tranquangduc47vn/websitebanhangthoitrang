@@ -13,7 +13,7 @@
 		<div class="jm-auth-card">
 			<div class="jm-auth-card-head">
 				<h1 class="jm-auth-title">Đăng nhập</h1>
-				<p class="jm-auth-subtitle">Chào mừng bạn quay lại JM Dress Design</p>
+				<p class="jm-auth-subtitle">Chào mừng bạn quay lại <?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?></p>
 			</div>
 
 			<?php if (!empty($message_success)) { ?>
@@ -41,6 +41,10 @@
 						placeholder="••••••••" autocomplete="current-password" required>
 					<?php echo form_error('password', '<span class="jm-auth-field-error">', '</span>'); ?>
 				</div>
+
+				<p class="jm-auth-forgot">
+					<a href="<?php echo base_url('quen-mat-khau'); ?>">Quên mật khẩu?</a>
+				</p>
 
 				<button type="submit" class="jm-auth-submit">Đăng nhập</button>
 			</form>

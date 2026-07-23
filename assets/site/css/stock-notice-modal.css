@@ -1,0 +1,167 @@
+/**
+ * Stock notice modal — luxury light theme (shared by cart + product detail).
+ * Requires typography-luxury.css (--wf-font, --wf-display, --wf-accent, --wf-muted).
+ */
+
+/* Dialog placement */
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .modal-dialog {
+	margin: 72px auto 24px;
+	max-width: 420px;
+	width: calc(100% - 32px);
+}
+
+/* Backdrop when this modal is open (Bootstrap 3 inserts backdrop after modal) */
+.qd-stock-notice-modal.qd-stock-notice-modal--lux + .modal-backdrop.in {
+	opacity: 0.45;
+}
+
+/* Bootstrap 3 override — high specificity */
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .modal-content.qd-stock-notice-modal__content {
+	background: #fff;
+	border: 1px solid #e8e8e8;
+	border-radius: 16px;
+	box-shadow: 0 20px 56px rgba(0, 0, 0, 0.12);
+	overflow: hidden;
+	color: var(--wf-text, #141414);
+	font-family: var(--wf-font, 'DM Sans', sans-serif);
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 28px 24px 0;
+	border: none;
+	background: transparent;
+	text-align: center;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: rgba(154, 123, 47, 0.12);
+	color: var(--wf-accent, #9a7b2f);
+	font-size: 20px;
+	flex-shrink: 0;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__title {
+	margin: 0;
+	font-family: var(--wf-display, 'Cormorant Garamond', Georgia, serif);
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 1.2;
+	color: var(--wf-text, #141414);
+	letter-spacing: 0.01em;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__body {
+	padding: 18px 24px 8px;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__product {
+	background: #faf9f7;
+	border: 1px solid #eceae6;
+	border-radius: 12px;
+	padding: 14px 16px;
+	margin-bottom: 16px;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__product-name {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--wf-text, #141414);
+	line-height: 1.45;
+	margin-bottom: 10px;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__product-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 20px;
+	font-size: 13px;
+	color: var(--wf-muted, #5a5a5a);
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__meta-label {
+	font-weight: 400;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__product-meta strong {
+	color: var(--wf-text, #141414);
+	font-weight: 600;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__warn {
+	margin: 0 0 10px;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--wf-accent, #9a7b2f);
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__hint {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--wf-muted, #5a5a5a);
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__footer {
+	display: flex;
+	justify-content: center;
+	padding: 12px 24px 24px;
+	border: none;
+	background: transparent;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__btn {
+	appearance: none;
+	display: block;
+	width: 100%;
+	max-width: 280px;
+	margin: 0 auto;
+	padding: 14px 20px;
+	border: none;
+	border-radius: 8px;
+	background: #111;
+	color: #fff;
+	font-family: var(--wf-font, 'DM Sans', sans-serif);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	line-height: 1;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__btn:hover,
+.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__btn:focus {
+	background: #000;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+	color: #fff;
+	outline: none;
+	transform: translateY(-1px);
+}
+
+@media (max-width: 479px) {
+	.qd-stock-notice-modal.qd-stock-notice-modal--lux .modal-dialog {
+		margin-top: 48px;
+	}
+
+	.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__header {
+		padding-top: 24px;
+	}
+
+	.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__body,
+	.qd-stock-notice-modal.qd-stock-notice-modal--lux .qd-stock-notice-modal__footer {
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+}

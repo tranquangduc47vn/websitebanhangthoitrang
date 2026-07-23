@@ -14,7 +14,7 @@
 		<form class="d-flex gap-2" action="" method="get">
 			<input type="text" name="q" class="form-control" placeholder="Tìm theo mã hội thoại hoặc token khách..."
 				value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>">
-			<button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+			<noscript><button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-magnifying-glass"></i></button></noscript>
 		</form>
 	</div>
 </div>

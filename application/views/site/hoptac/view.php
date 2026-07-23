@@ -28,7 +28,7 @@
       <!--       <div style="margin-top: 40px; padding: 20px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;">
                 <h3 style="margin: 0 0 10px 0; color: #222; font-size: 16px; font-weight: bold;">Liên hệ hợp tác phát triển:</h3>
                 <p style="margin: 0; color: #555; font-size: 14px;">
-                    Quý đối tác có nhu cầu liên kết, mở đại lý nhượng quyền vui lòng gửi đề xuất dự án qua Hotline ban quản trị hoặc Email phòng kinh doanh của thương hiệu <strong>Thời trang Ngọc Lan</strong>.
+                    Quý đối tác có nhu cầu liên kết, mở đại lý nhượng quyền vui lòng gửi đề xuất dự án qua Hotline ban quản trị hoặc Email phòng kinh doanh của thương hiệu <strong><?php echo htmlspecialchars(shop_name(), ENT_QUOTES, 'UTF-8'); ?></strong>.
                 </p>
             </div> -->
             

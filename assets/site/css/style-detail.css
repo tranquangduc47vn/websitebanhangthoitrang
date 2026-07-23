@@ -229,6 +229,32 @@ div.col-md-3:has(form) {
     margin-bottom: 1.25rem;
 }
 
+.style2-price-badge-line {
+    margin: 0 0 0.35rem;
+}
+
+.jm-pdp-sale-badge {
+    position: static;
+    display: inline-block;
+    background: linear-gradient(135deg, #ff4242 0%, #e01010 55%, #c80000 100%) !important;
+    color: #fff !important;
+    padding: 7px 14px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 14px rgba(224, 16, 16, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.jm-pdp-related-card__media {
+    position: relative;
+}
+
+.jm-pdp-related-badge {
+    top: 8px;
+    left: 8px;
+}
+
 .style2-price-old-line {
     margin: 0 0 0.25rem !important;
     font-size: 14px;
@@ -565,6 +591,185 @@ div.col-md-3:has(form) {
     font-size: 13px;
     color: #999;
     width: 30px;
+}
+
+.jm-review-note {
+    margin: 16px 0 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.jm-review-history {
+    margin-top: 24px;
+    background: #fff;
+    border: 1px solid #eee;
+    padding: 20px 24px;
+}
+
+.jm-review-history-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #111;
+    margin: 0 0 16px;
+}
+
+.jm-review-history-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.jm-review-history-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.jm-review-history-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.jm-review-history-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.jm-review-user {
+    font-size: 14px;
+    color: #111;
+}
+
+.jm-review-stars-inline {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.jm-review-stars-text {
+    font-size: 13px;
+    color: #333;
+}
+
+.jm-review-date {
+    font-size: 12px;
+    color: #999;
+    margin-left: auto;
+}
+
+.jm-review-empty {
+    margin: 16px 0 0;
+    font-size: 13px;
+    color: #999;
+}
+
+.jm-my-review-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #111;
+    background: #f3f3f3;
+    border-radius: 999px;
+}
+
+.jm-review-undo-btn {
+    display: inline;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    color: #111;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.jm-review-undo-btn:hover {
+    color: #666;
+}
+
+.jm-review-history-item--mine {
+    background: #fafafa;
+    margin: 0 -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.jm-review-thank-modal .modal-dialog {
+    margin: 80px auto;
+}
+
+.jm-review-thank-modal__content {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.jm-review-thank-modal__body {
+    padding: 32px 28px 28px;
+    text-align: center;
+}
+
+.jm-review-thank-modal__icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #111;
+    color: #fff;
+    font-size: 28px;
+    line-height: 56px;
+}
+
+.jm-review-thank-modal__title {
+    margin: 0 0 12px;
+    font-family: var(--wf-display);
+    font-size: 22px;
+    font-weight: 500;
+    color: #111;
+}
+
+.jm-review-thank-modal__stars {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+
+.jm-review-thank-modal__score {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.jm-review-thank-modal__text {
+    margin: 0 0 22px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+}
+
+.jm-review-thank-modal__btn {
+    min-width: 120px;
+    padding: 10px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #111;
+    border: 1px solid #111;
+    border-radius: 999px;
+}
+
+.jm-review-thank-modal__btn:hover,
+.jm-review-thank-modal__btn:focus {
+    color: #fff;
+    background: #333;
+    border-color: #333;
 }
 
 /* ==========================================================================

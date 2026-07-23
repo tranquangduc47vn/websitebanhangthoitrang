@@ -88,3 +88,7 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 defined('ROLE_ADMIN') OR define('ROLE_ADMIN', 0);
 defined('ROLE_MOD')   OR define('ROLE_MOD', 1);
 defined('ROLE_USER')  OR define('ROLE_USER', 2);
+
+/** Tên thương hiệu storefront (đổi một chỗ áp dụng toàn site). */
+defined('SHOP_NAME') OR define('SHOP_NAME', 'qD Design');
+defined('SHOP_NAME_UPPER') OR define('SHOP_NAME_UPPER', 'QD DESIGN');

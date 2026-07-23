@@ -59,6 +59,10 @@ if (!function_exists('admin_can')) {
 
 			case 'inventory.adjust':
 			case 'inventory.manage':
+			case 'stock.view':
+				return $is_admin || $is_mod || $is_user;
+
+			case 'stock.manage':
 			case 'product.manage':
 			case 'catalog.manage':
 			case 'banner.manage':
@@ -104,21 +108,28 @@ if (!function_exists('admin_sidebar_allowed')) {
 		}
 
 		$user_only = array('home');
-		$staff = array('catalog', 'products', 'inventory', 'slider', 'users', 'admin', 'posts', 'page', 'banner', 'store', 'tuyendung', 'hoptac', 'vanchuyen', 'voucher');
+		$staff = array('catalog', 'products', 'slider', 'users', 'admin', 'posts', 'page', 'banner', 'store', 'tuyendung', 'hoptac', 'vanchuyen', 'voucher');
+		$warehouse_slugs = array('inventory', 'receipts', 'inventory-adjust', 'stock-movements', 'suppliers', 'stock-receipts', 'stock-inventory');
 
 		$level = (int) $login->level;
 		if ($level === ROLE_USER) {
 			if (in_array($slug, $user_only, true)) {
 				return true;
 			}
-			if ($slug === 'inventory') {
-				return admin_can('inventory.view', $login);
+			if ($slug === 'inventory' || in_array($slug, array('receipts', 'inventory-adjust', 'stock-movements', 'suppliers', 'stock-receipts', 'stock-inventory'), true)) {
+				return admin_can('inventory.view', $login) || admin_can('stock.view', $login);
+			}
+			if ($slug === 'stock-receipts' || $slug === 'stock-inventory') {
+				return admin_can('stock.view', $login);
 			}
 			return false;
 		}
 
 		if (in_array($slug, $user_only, true) || in_array($slug, $staff, true)) {
 			return true;
+		}
+		if (in_array($slug, $warehouse_slugs, true)) {
+			return admin_can('stock.view', $login) || admin_can('inventory.view', $login);
 		}
 		if ($slug === 'orders' || $slug === 'report') {
 			return admin_can('order.manage', $login);
